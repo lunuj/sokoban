@@ -63,7 +63,7 @@ ifeq ($(OS), Mac)
 else ifeq ($(OS), Linux)
   	OS_LIBS := -ldl -lpthread -lm
 else ifeq ($(OS), Windows)
-	OS_LIBS := -lgdi32 -luser32 -lkernel32 -lshell32 -lopengl32
+	OS_LIBS := -lgdi32 -luser32 -lkernel32 -lshell32 -lopengl32 -lwinmm
 else
   	$(error Unsupported OS: $(OS))
 endif
@@ -76,7 +76,7 @@ MODULES_FILE    := $(patsubst lib%,-l%,$(basename $(notdir $(filter %.so %.lib %
 
 # 库文件收集
 LIB_FILES 		:= $(shell find $(LIB_DIR)/$(OS) -type f  -name "*.so" -o -name "*.lib" -o -name "*.dll" -o -name "*.a")
-LIBS            := $(patsubst $(LIB_DIR)/$(OS)/lib%.*,-l%,$(LIB_FILES))
+LIBS 			:= $(foreach f,$(notdir $(LIB_FILES)),-l$(basename $(patsubst lib%,%,$(f))))
 
 # 编译标志
 CFLAGS          := -Wall -Wextra -g -Wno-unused-variable -Wno-missing-braces -DOUTPUT_DIR=\"$(OUTPUT_DIR)\" -DRES_DIR=\"$(RES_DIR)\"
