@@ -7,11 +7,14 @@
 #define MAP_BLOCK_SIZE 13
 extern char map[MAP_HEIGHT][MAP_WIDTH];
 
+static char last = 0;
+static int count = 0;
+
 void show()
 {
     Color color;
     BeginDrawing();
-    ClearBackground(RAYWHITE);
+    ClearBackground(BLANK);
     
     for(int i = 0; i < MAP_HEIGHT*MAP_WIDTH; i++)
     {
@@ -21,7 +24,7 @@ void show()
                 color = BLACK;
                 break;
             case SPACE:
-                color = WHITE;
+                color = BLANK;
                 break;
             case PLAYER:
                 color = BROWN;
@@ -48,8 +51,8 @@ void show()
 
 char getinput()
 {
-    if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_A)) return 'a';
-    if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_D)) return 'd';
+    if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) return 'd';
+    if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) return 'a';
     if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))  return 'w';
     if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)) return 's';
     if (IsKeyPressed(KEY_E)) return 'e';
@@ -59,8 +62,8 @@ char getinput()
 
 int main()
 {
+    SetConfigFlags(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TRANSPARENT);
     InitWindow(MAP_WIDTH*MAP_BLOCK_SIZE, MAP_HEIGHT*MAP_BLOCK_SIZE, "Hello Raylib");
-    SetWindowState(FLAG_WINDOW_UNDECORATED);
     while (!WindowShouldClose())
     {
         show();
