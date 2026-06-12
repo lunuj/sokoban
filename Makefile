@@ -76,12 +76,13 @@ MODULES_FILE    := $(patsubst lib%,-l%,$(basename $(notdir $(filter %.so %.lib %
 
 # 库文件收集
 LIB_FILES 		:= $(shell find $(LIB_DIR)/$(OS) -type f  -name "*.so" -o -name "*.lib" -o -name "*.dll" -o -name "*.a")
+LIBS_DIR		:= $(patsubst %,-L%,$(wildcard $(LIB_DIR)/$(OS)/*/))
 LIBS 			:= $(foreach f,$(notdir $(LIB_FILES)),-l$(basename $(patsubst lib%,%,$(f))))
 
 # 编译标志
 CFLAGS          := -Wall -Wextra -g -Wno-unused-variable -Wno-missing-braces -DOUTPUT_DIR=\"$(OUTPUT_DIR)\" -DRES_DIR=\"$(RES_DIR)\"
 INCLUDE         := -I$(INCLUDE_DIR) $(MODULES_INC)
-LIB             := -L$(LIB_DIR)/$(OS) $(MODULES_OBJ) $(MODULES_FILE) -Wl,-rpath=$(LIB_DIR)/$(OS) $(MODULES_PATH)
+LIB             := -L$(LIB_DIR)/$(OS) $(LIBS_DIR) $(MODULES_OBJ) $(MODULES_FILE) -Wl,-rpath=$(LIB_DIR)/$(OS) $(MODULES_PATH)
 
 # 创建目录的规则
 define MAKE_DIR
