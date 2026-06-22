@@ -4,14 +4,7 @@
 #include <string.h>
 #include "core.h"
 
-struct record {
-    int pos_f;
-    int direct;
-    int step;
-    int pos_t;
-};
-
-struct record records[100];
+struct record records[1024];
 int record_count = 0;
 
 char map[MAP_HEIGHT][MAP_WIDTH] = {

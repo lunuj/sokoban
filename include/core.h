@@ -11,6 +11,13 @@
 #define MAP_WIDTH 10
 #define MAP_HEIGHT 10
 
+struct record {
+    int pos_f;
+    int direct;
+    int step;
+    int pos_t;
+};
+
 void update(char c);
 
 void mov(int pos_f, int direct, int step);

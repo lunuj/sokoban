@@ -115,8 +115,8 @@ clean:
 
 # 静态库目标
 static: $(OBJS_NO_MAIN) | $(LIB_FILES)
-	ar rcs $(OUTPUT_DIR)/lib$(TARGET_NAME).a $<
+	ar rcs $(OUTPUT_DIR)/lib$(TARGET_NAME).a $^
 
 # 动态库目标
 dynamic: $(OBJS_NO_MAIN) | $(LIB_FILES)
-	$(CC) -shared -o $(OUTPUT_DIR)/lib$(TARGET_NAME).so $<
+	$(CC) $(CFLAGS) $(INCLUDE) -fPIC -shared -o $(OUTPUT_DIR)/lib$(TARGET_NAME).so $^ $(LIB) $(LIBS) $(OS_LIBS)

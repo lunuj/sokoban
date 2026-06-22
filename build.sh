@@ -121,9 +121,9 @@ case "$cmd" in
         ;;
     dynamic)
         echo "--------------------------------"
-        echo "make dunamic"
+        echo "make dynamic"
         echo "--------------------------------"
-        make dunamic
+        make dynamic
         ;;
     debug)
         # TODO: implement debug build
@@ -162,6 +162,10 @@ case "$cmd" in
         ;;
     help|--help|-h|"")
         usage
+        ;;
+    my)
+        ./build.sh dynamic
+        ./build.sh run test
         ;;
     *)
         echo "Unknown command: $cmd"
