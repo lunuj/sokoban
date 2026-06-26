@@ -50,7 +50,7 @@ TEST_OBJS       := $(patsubst %.c,$(OUTPUT_OBJ_DIR)/%.o,$(TSET_SRCS))
 TEST_DEPS       := $(patsubst %.c,$(OUTPUT_DEP_DIR)/%.d,$(TSET_SRCS))
 TEST_OUT        := $(patsubst $(TEST_DIR)/%.c,$(OUTPUT_DIR)/%$(BIN_SUFFIX),$(TSET_SRCS))
 
-TARGET_NAME 	?= demo
+TARGET_NAME 	?= plug
 
 -include $(DEPS)
 -include $(DEPS_NO_MAIN)

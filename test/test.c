@@ -7,6 +7,7 @@
 #include <windows.h>
 
 #include "raylib/raylib.h"
+#include "plug.h"
 
 #define MAP_WIDTH 40
 #define MAP_HEIGHT 22.5
@@ -16,7 +17,7 @@ void* lib = NULL;
 void (*lib_init)() = NULL;
 void *(*lib_pre_reload)() = NULL;
 void (*lib_post_reload)(void *state) = NULL;
-void (*lib_update)() = NULL;
+void (*lib_update)(Env *env) = NULL;
 void (*lib_exit)() = NULL;
 
 static void* dlopen(const char *path, int flag)
@@ -89,6 +90,8 @@ bool reload_libplug()
 
 int main()
 {
+    bool pause = false;
+
     if(!reload_libplug()) return 1;
 
     lib_init();
@@ -99,6 +102,9 @@ int main()
 
 
     InitWindow(MAP_WIDTH*MAP_BLOCK_SIZE, MAP_HEIGHT*MAP_BLOCK_SIZE, "Hello Raylib");
+
+    Env env;
+
     while (!WindowShouldClose())
     {
         if(IsKeyPressed(KEY_R))
@@ -107,7 +113,19 @@ int main()
             if(!reload_libplug()) return 2;
             lib_post_reload(state);
         }
-        lib_update();
+
+        if(IsKeyPressed(KEY_SPACE))
+        {
+            pause = !pause;
+        }
+
+        env = (Env){
+            .dt = pause ? 0 : GetFrameTime(),
+            .w = GetScreenWidth(),
+            .h = GetScreenHeight()
+        };
+
+        lib_update(&env);
     }
     lib_exit();
     CloseWindow();

@@ -5,6 +5,7 @@
 #include <math.h> 
 
 #include "raylib/raylib.h"
+#include "plug.h"
 
 typedef struct {
     size_t from;
@@ -200,17 +201,23 @@ void show(float dt, float w, float h)
     DrawRectangleLinesEx(rec, 5, BLUE);
 }
 
-void plug_update()
+void plug_update(Env *env)
 {
+    static float time = 0;
+
     BeginDrawing();
-    show(GetFrameTime(), GetScreenWidth(), GetScreenHeight());
+    show(env->dt, env->w, env->h);
     EndDrawing();
-    if(0)
+    if(time < 5)
     {
+        time += env->dt;
         Image screen = LoadImageFromScreen();
         fwrite(screen.data, screen.width * screen.height*4, 1, p->ffmpeg);  // RGBA
         UnloadImage(screen);
-    }
+    }else{
+        fclose(p->ffmpeg);
+        p->ffmpeg = NULL;
+    }   
 }
 
 void plug_exit()
