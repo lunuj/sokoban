@@ -91,6 +91,7 @@ bool reload_libplug()
 int main()
 {
     bool pause = false;
+    Env env = {0};
 
     if(!reload_libplug()) return 1;
 
@@ -100,10 +101,12 @@ int main()
     SetTargetFPS(60);
     SetConfigFlags(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TRANSPARENT);
 
-
     InitWindow(MAP_WIDTH*MAP_BLOCK_SIZE, MAP_HEIGHT*MAP_BLOCK_SIZE, "Hello Raylib");
+    InitAudioDevice();
 
-    Env env;
+    Music m = LoadMusicStream("res/target2.ogg");
+    m.looping = false;
+    PlayMusicStream(m);
 
     while (!WindowShouldClose())
     {
@@ -113,22 +116,65 @@ int main()
             if(!reload_libplug()) return 2;
             lib_post_reload(state);
         }
-
+        
         if(IsKeyPressed(KEY_SPACE))
         {
+            if(env.record) env.audio_index = 0;
+            PlayMusicStream(m);
             pause = !pause;
         }
 
-        env = (Env){
-            .dt = pause ? 0 : GetFrameTime(),
-            .w = GetScreenWidth(),
-            .h = GetScreenHeight()
-        };
+        if(IsKeyPressed(KEY_E))
+        {
+            env.record = !env.record;
+            if (env.record)
+            {
+                env.f_video = popen("ffmpeg "
+                                   "-loglevel verbose "
+                                   "-y "
+                                   "-f rawvideo "
+                                   "-pix_fmt rgba "
+                                   "-s 400x225 "
+                                   "-r 60 "
+                                   "-i - "
+                                   "-c:v libx264 "
+                                   "-vb 2500k "
+                                   "-c:a aac "
+                                   "-ab 200k "
+                                   "-preset fast "
+                                   "-crf 23 "
+                                   "-f mp4 "
+                                   "output.mp4",
+                                   "wb");
+                env.f_audio = popen("ffmpeg "
+                                   "-loglevel verbose "
+                                   "-y "
+                                   "-f s16le "
+                                   "-ar 44100 "
+                                   "-ac 2 "
+                                   "-i - "
+                                   "output.wav",
+                                   "wb");
+            }
+            else
+            {
+                pclose(env.f_video);
+                pclose(env.f_audio);
+                system("ffmpeg -i output.mp4 -i output.wav -c:v copy -c:a copy out.mp4");
+            }
+        }
+
+        env.dt = pause ? 0 : GetFrameTime();
+        env.w = GetScreenWidth();
+        env.h = GetScreenHeight();
 
         lib_update(&env);
+        UpdateMusicStream(m);
     }
-    lib_exit();
+    StopMusicStream(m);
+    CloseAudioDevice();
     CloseWindow();
+    lib_exit();
 
     return 0;
 }

@@ -26,41 +26,24 @@ typedef struct {
 
     Animation anim[2];
     Font font;
-
-    FILE* ffmpeg;
 } Plug;
 
 static Plug *p;
 
 void load_resources()
 {
-    p->font = LoadFont("res/consolar.ttf");
-    p->ffmpeg = popen("ffmpeg "
-                        "-loglevel verbose "
-                        "-y "
-                        "-f rawvideo "
-                        "-pix_fmt rgba "
-                        "-s 400x225 "
-                        "-r 30 "
-                        "-i - "
-                        "-c:v libx264 "
-                        "-vb 2500k "
-                        "-c:a aac "
-                        "-ab 200k "
-                        "-preset fast "
-                        "-crf 23 "
-                        "-f mp4 "
-                        "output.mp4", "wb");
+    // p->font = LoadFont("res/consolar.ttf");
 }
 
 void unload_resources()
 {
-    UnloadFont(p->font);
-    pclose(p->ffmpeg);
+    // UnloadFont(p->font);
 }
 
 size_t keyframe_count = 2;
 Keyframe keyframes[8] = {{1, 0, 1}, {0, 0, 1},{1, 1, 1}, {0, 1, 1},{1, 1, 1}, {0, 1, 0.5}, };
+
+Wave w;
 
 void plug_init()
 {
@@ -75,6 +58,8 @@ void plug_init()
     p->anim[1].loop = true;
     p->anim[1].kf = keyframes + 2;
     p->anim[1].count = 2;
+
+    w = LoadWave("res/ding.wav");
     load_resources();
 }
 
@@ -201,27 +186,50 @@ void show(float dt, float w, float h)
     DrawRectangleLinesEx(rec, 5, BLUE);
 }
 
+#define AUDIO_SAMPLE_RATE 44100
+#define AUDIO_SAMPLE_SIZE 2
+#define AUDIO_SAMPLE_CHANNEL 2
+#define FPS 60
+#define AUDIO_SAMPLE_FRAME_COUNT (AUDIO_SAMPLE_RATE / FPS)
+#define AUDIO_SAMPLE_FRAME_BYTE (AUDIO_SAMPLE_RATE * AUDIO_SAMPLE_CHANNEL * AUDIO_SAMPLE_SIZE / FPS)
+char silence[AUDIO_SAMPLE_FRAME_BYTE]; // 双声道 0.16
+unsigned int wave_index = 0;
+
 void plug_update(Env *env)
 {
-    static float time = 0;
-
     BeginDrawing();
     show(env->dt, env->w, env->h);
     EndDrawing();
-    if(time < 5)
+
+    memset(silence, 0, sizeof(silence));
+
+    if(env->record)
     {
-        time += env->dt;
         Image screen = LoadImageFromScreen();
-        fwrite(screen.data, screen.width * screen.height*4, 1, p->ffmpeg);  // RGBA
+        fwrite(screen.data, screen.width * screen.height*4, 1, env->f_video);
         UnloadImage(screen);
-    }else{
-        fclose(p->ffmpeg);
-        p->ffmpeg = NULL;
-    }   
+
+        if(env->audio_index + AUDIO_SAMPLE_FRAME_COUNT < w.frameCount)
+        {
+            fwrite(w.data + env->audio_index*AUDIO_SAMPLE_SIZE*AUDIO_SAMPLE_CHANNEL, AUDIO_SAMPLE_FRAME_BYTE, 1, env->f_audio);
+            env->audio_index += AUDIO_SAMPLE_FRAME_COUNT;
+        }
+        else if(env->audio_index < w.frameCount)
+        {
+            fwrite(w.data + env->audio_index*AUDIO_SAMPLE_SIZE*AUDIO_SAMPLE_CHANNEL, (w.frameCount - env->audio_index)*AUDIO_SAMPLE_SIZE*AUDIO_SAMPLE_CHANNEL, 1, env->f_audio);
+            fwrite(silence, AUDIO_SAMPLE_FRAME_BYTE - (w.frameCount - env->audio_index)*AUDIO_SAMPLE_SIZE*AUDIO_SAMPLE_CHANNEL, 1, env->f_audio);
+            env->audio_index += AUDIO_SAMPLE_FRAME_COUNT;
+        }
+        else
+        {
+            fwrite(silence, AUDIO_SAMPLE_FRAME_BYTE, 1, env->f_audio);
+        }
+    }
 }
 
 void plug_exit()
 {
     unload_resources();
     free(p);
+    system("ffmpeg -i output.mp4 -i output.wav -c:v copy -c:a copy out.mp4");
 }
