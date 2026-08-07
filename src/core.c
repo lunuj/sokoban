@@ -2,205 +2,195 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 #include "core.h"
 
-struct record records[1024];
-int record_count = 0;
+Map map;
 
-char map[MAP_HEIGHT][MAP_WIDTH] = {
-    "##########",
-    "#A       #", 
-    "#  ##X   #",
-    "#  ##    #",
-    "#        #",
-    "#   ##   #",
-    "#   ##  _#",
-    "#   X    #",
-    "#   _    #",
-    "##########"
-};
-
-int find_player()
+static inline void map_set(Map *map, int pos, int maptype)
 {
-    for(int i = 0; i < MAP_HEIGHT; i++)
+    assert(pos < map->w * map->h);
+    map->map[pos] |= maptype;
+}
+
+static inline int map_get(Map *map, int pos)
+{
+    assert(pos < map->w * map->h);
+    return map->map[pos];
+}
+
+static inline void map_clear(Map *map, int pos, int maptype)
+{
+    assert(pos < map->w * map->h);
+    map->map[pos] &= ~maptype;
+}
+
+static inline bool map_is(Map *map, int pos, int maptype)
+{
+    assert(pos < map->w * map->h);
+    return (map->map[pos] & maptype) == maptype;
+}
+
+static inline int get_map_width(Map *map)
+{
+    return map->w;
+}
+
+static inline int get_map_height(Map *map)
+{
+    return map->h;
+}
+
+int find_player(Map *map)
+{
+    int w = get_map_width(map);
+    int h = get_map_height(map);
+
+    for(int i = 0; i < h; i++)
     {
-        for(int j = 0; j < MAP_WIDTH; j++)
+        for(int j = 0; j < w; j++)
         {
-            if(map[i][j] == PLAYER || map[i][j] == PLAYER_ON_TARGET)
+            if((map->map[i*w + j] & MAP_PLAYER) == MAP_PLAYER)
             {
-                return i * MAP_WIDTH + j;   
+                return i * w + j;   
             }
         }
     }
+
     return -1;
 }
 
-
-static bool is_recording = true;
-
-void records_add(int pos_f, int direct, int step, int pos_t)
+void records_add(Map *map, int pos_f, int direct, int step, int pos_t)
 {
-    if (is_recording)
+    if (map->is_recording)
     {
-        records[record_count].pos_f = pos_f;
-        records[record_count].direct = direct;
-        records[record_count].step = step;
-        records[record_count].pos_t = pos_t;
-        record_count++;
+        map->records[map->record_count].pos_f = pos_f;
+        map->records[map->record_count].direct = direct;
+        map->records[map->record_count].step = step;
+        map->records[map->record_count].pos_t = pos_t;
+        map->record_count++;
     }
 }
 
-void mov(int pos_f, int direct, int step)
+void mov(Map *map, int pos_f, int direct, int step)
 {
+    int w = get_map_width(map);
+    int h = get_map_height(map);
     int pos_t = pos_f;
 
     switch (direct)
     {   
-        case 'w':
-            pos_t = pos_f - MAP_WIDTH * step;
+        case OPTION_MOV_UP:
+            pos_t = pos_f - w * step;
             break;
-        case 's':
-            pos_t = pos_f + MAP_WIDTH * step;
+        case OPTION_MOV_DOWN:
+            pos_t = pos_f + w * step;
             break;
-        case 'a':
+        case OPTION_MOV_LEFT:
             pos_t = pos_f - step;
             break;
-        case 'd':
+        case OPTION_MOV_RIGHT:
             pos_t = pos_f + step;
             break;
-    default:
-        break;
+        default:
+            break;
     }
-    if(pos_t < 0 || pos_t >= MAP_WIDTH * MAP_HEIGHT)
+
+    if(pos_t < 0 || pos_t >= w * h)
     {
         return;
     }
 
-    char *f = (char *)map + pos_f;
-    char *t = (char *)map + pos_t;
+    char *f = map->map + pos_f;
+    char *t = map->map + pos_t;
 
-    switch (*t)
+    if(map_is(map, pos_t, MAP_BLOCK))
     {
-    case BOLCK:
         return;
-    case SPACE:
-        if(*f==PLAYER_ON_TARGET)
-        {
-            *f = TARGET;
-            *t = PLAYER;
-        }
-        else if(*f==BOX_ON_TARGET)
-        {
-            *f = TARGET;
-            *t = BOX;
-        }
-        else
-        {
-            *t ^= *f;
-            *f ^= *t;
-            *t ^= *f;
-        }
-        break;
-    case TARGET:
-        if(*f == PLAYER)
-        {
-            *f = SPACE;
-            *t = PLAYER_ON_TARGET;
-        }
-        else if(*f == BOX)
-        {
-            *f = SPACE;
-            *t = BOX_ON_TARGET;
-        }
-        break;
-    case BOX:
-        if(*f!=BOX && *f!=BOX_ON_TARGET)
-        {
-            mov(pos_t, direct, 1);
-        }
-        return;
-    case BOX_ON_TARGET:
-        if(*f!=BOX && *f!=BOX_ON_TARGET)
-        {
-            mov(pos_t, direct, 1);
-        }
-        return;
-    default:
-        break;
     }
 
-    records_add(pos_f, direct, step, pos_t);
+    if(map_is(map, pos_t, MAP_BOX))
+    {
+        mov(map, pos_t, direct, step);
+        return;
+    }
+
+    if(map_is(map, pos_f, MAP_PLAYER))
+    {
+        map_clear(map, pos_f, MAP_PLAYER);
+        map_set(map, pos_t, MAP_PLAYER);
+    }
+    if(map_is(map, pos_f, MAP_BOX))
+    {
+        map_clear(map, pos_f, MAP_BOX);
+        map_set(map, pos_t, MAP_BOX);  
+    }
+
+    records_add(map, pos_f, direct, step, pos_t);
 }
 
-
-void records_undo()
+void records_undo(Map *map)
 {
-    if(record_count > 0)
+    if(map->record_count > 0)
     {
-        record_count--;
-        is_recording = false;
-        int direct = records[record_count].direct;
-        int step = records[record_count].step;
-        int pos_t = records[record_count].pos_t;
+        map->record_count--;
+        map->is_recording = false;
+        int direct = map->records[map->record_count].direct;
+        int step = map->records[map->record_count].step;
+        int pos_t = map->records[map->record_count].pos_t;
 
         switch (direct)
         {
-        case 'w':
-            mov(pos_t, 's', step);
+        case OPTION_MOV_UP:
+            mov(map, pos_t, OPTION_MOV_DOWN, step);
             break;
-        case 's':
-            mov(pos_t, 'w', step);
+        case OPTION_MOV_DOWN:
+            mov(map, pos_t, OPTION_MOV_UP, step);
             break;
-        case 'a':
-            mov(pos_t, 'd', step);
+        case OPTION_MOV_LEFT:
+            mov(map, pos_t, OPTION_MOV_RIGHT, step);
             break;
-        case 'd':
-            mov(pos_t, 'a', step);
+        case OPTION_MOV_RIGHT:
+            mov(map, pos_t, OPTION_MOV_LEFT, step);
             break;
         default:
             break;
         }
-        is_recording = true;
+        map->is_recording = true;
     }
 }
 
-
-void update(char c)
+int update(Map *map, int c)
 {
-    int pos = find_player();
+    int pos = find_player(map);
 
     switch (c)
     {
-    case 'w':
-        mov(pos, 'w', 1);
+    case OPTION_MOV_UP:
+    case OPTION_MOV_DOWN:
+    case OPTION_MOV_LEFT:
+    case OPTION_MOV_RIGHT:
+        mov(map, pos, c, 1);
         break;
-    case 's':
-        mov(pos, 's', 1);
+    case OPTION_RECORD_BACK:
+        records_undo(map);
         break;
-    case 'a':
-        mov(pos, 'a', 1);
-        break;
-    case 'd':
-        mov(pos, 'd', 1);
-        break;
-    case 'q':
-        exit(0);
-        break;
-    case 'e':
-        records_undo();
-        break;        
+    case OPTION_QUIT:
+        return -1;
     default:
         break;
     }
+
+    return 0;
 }
 
-bool is_win()
+bool is_win(Map *map)
 {
-    for(int i = 0; i < MAP_HEIGHT; i++)
+    for(int i = 0; i < get_map_height(map); i++)
     {
-        for(int j = 0; j < MAP_WIDTH; j++)
+        for(int j = 0; j < get_map_width(map); j++)
         {
-            if(map[i][j] == BOX)
+            if(map->map[i*get_map_height(map) + j] == MAP_BOX)
             {
                 return false;   
             }

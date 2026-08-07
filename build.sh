@@ -3,8 +3,12 @@ set -e
 output_dir="$(make -s print-OUTPUT_DIR)"
 suffix="$(make -s print-BIN_SUFFIX)"
 modules="$(make -s print-MODULES_DIR)"
+lib="$(make -s print-LIB_DIR)"
+os="$(make -s print-OS)"
 target=$(basename "$PWD")
 make_flags="TARGET_NAME=\"$target\""
+
+export PATH=$(find $lib/$os/ -maxdepth 1 -type d | tr '\n' ':'):$PATH
 
 make_all() {
     for dir in $modules/*; do
