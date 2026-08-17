@@ -13,6 +13,15 @@
 
 #define RECORD_SIZE 1024
 
+enum MapType {
+    SPACE,
+    BLOCK,
+    PLAYER,
+    TARGET,
+    BOX,
+    MAX,
+};
+
 enum Option {
     OPTION_NONE,
     OPTION_QUIT,
