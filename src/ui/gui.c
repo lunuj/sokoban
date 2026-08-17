@@ -5,9 +5,9 @@
 #include "core.h"
 #include "ui/gui.h"
 #include "raylib/raylib.h"
+#include "anim.h"
 
 static double last = 0;
-static int count = 0;
 Texture2D texture[MAX];
 
 int speed_x = 1;
@@ -80,6 +80,28 @@ void mov_block(Map *map, Record* record)
     }
 }
 
+void gui_show_back(int block, int x, int y)
+{
+    if((block & MAP_SPACE) == MAP_SPACE)
+        DrawTexture(texture[SPACE],x,y,WHITE);
+    if((block & MAP_TARGET) == MAP_TARGET)
+        DrawTexture(texture[TARGET],x,y,WHITE);
+}
+
+void gui_show_fornt(int block, int x, int y)
+{
+    if((block & MAP_BLOCK) == MAP_BLOCK)
+        DrawTexture(texture[BLOCK],x,y,WHITE);
+    if((block & MAP_PLAYER) == MAP_PLAYER)
+        DrawTexture(texture[PLAYER],x,y,WHITE);
+    if((block & MAP_BOX) == MAP_BOX)
+        DrawTexture(texture[BOX],x,y,WHITE);
+}
+
+static Animation animation = {0};
+static Anim anim;
+static int count = 0;
+
 void gui_show(Map *map)
 {
     Color color;
@@ -89,23 +111,47 @@ void gui_show(Map *map)
 
     BeginDrawing();
     ClearBackground(BLANK);
+    
+    static Vector2 pos;
+
+    int t = map->map[map->records[count].pos_t];
+    int f = map->map[map->records[count].pos_f];
+    int pos_x = (map->records[count].pos_f%w)*MAP_BLOCK_SIZE;
+    int pos_y = (map->records[count].pos_f/w)*MAP_BLOCK_SIZE;
 
     for(int i = 0; i < w*h; i++)
     {
         int pos_x = (i%w)*MAP_BLOCK_SIZE;
         int pos_y = (i/w)*MAP_BLOCK_SIZE;
         int block = *(map->map + i);
-        if((block & MAP_SPACE) == MAP_SPACE)
-            DrawTexture(texture[SPACE],pos_x,pos_y,WHITE);
-        if((block & MAP_TARGET) == MAP_TARGET)
-            DrawTexture(texture[TARGET],pos_x,pos_y,WHITE);
-        if((block & MAP_BLOCK) == MAP_BLOCK)
-            DrawTexture(texture[BLOCK],pos_x,pos_y,WHITE);
-        if((block & MAP_PLAYER) == MAP_PLAYER)
-            DrawTexture(texture[PLAYER],pos_x,pos_y,WHITE);
-        if((block & MAP_BOX) == MAP_BOX)
-            DrawTexture(texture[BOX],pos_x,pos_y,WHITE);
+        gui_show_back(block, pos_x, pos_y);
+        if(i == map->records[count].pos_t || i == map->records[count].pos_f)
+        if(count < map->record_count)
+            continue;
+        gui_show_fornt(block, pos_x, pos_y);
     }
+
+    if(count < map->record_count)
+    {
+        if(animation.elapsed == 0)
+        {
+            AnimValue p1_to = {
+                .type = ANIMATION_POSITION,
+                .from.position = {(map->records[count].pos_f%w)*MAP_BLOCK_SIZE, (map->records[count].pos_f/w)*MAP_BLOCK_SIZE},
+                .to.position = {(map->records[count].pos_t%w)*MAP_BLOCK_SIZE, (map->records[count].pos_t/w)*MAP_BLOCK_SIZE},
+            };
+            animation_init(&animation, 1, p1_to, &pos);
+            anim_init(&anim, ANIM_ANIMATION, &animation);
+        }
+        anim_update(&anim, 0.1);
+        gui_show_fornt(t, pos.x, pos.y);
+        if(animation.elapsed >= animation.duration)
+        {
+            count++;
+            anim_reset(&anim);
+        }
+    }
+
     EndDrawing();
 }
 

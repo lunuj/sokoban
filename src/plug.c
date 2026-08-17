@@ -6,25 +6,11 @@
 
 #include "raylib/raylib.h"
 #include "plug.h"
-
-typedef struct {
-    size_t from;
-    size_t to;
-    float duration;
-} Keyframe;
-
-typedef struct {
-    size_t i;
-    bool loop;
-    float duration;
-    size_t count;
-    Keyframe *kf;
-} Animation;
+#include "anim.h"
 
 typedef struct {
     size_t size;
 
-    Animation anim[2];
     Font font;
 } Plug;
 
@@ -40,9 +26,6 @@ void unload_resources()
     // UnloadFont(p->font);
 }
 
-size_t keyframe_count = 2;
-Keyframe keyframes[8] = {{1, 0, 1}, {0, 0, 1},{1, 1, 1}, {0, 1, 1},{1, 1, 1}, {0, 1, 0.5}, };
-
 Wave w;
 
 void plug_init()
@@ -52,12 +35,6 @@ void plug_init()
 
     memset(p, 0, sizeof(*p));
     p->size = sizeof(*p);
-    p->anim[0].loop = true;
-    p->anim[0].kf = keyframes;
-    p->anim[0].count = 2;
-    p->anim[1].loop = true;
-    p->anim[1].kf = keyframes + 2;
-    p->anim[1].count = 2;
 
     w = LoadWave("res/ding.wav");
     load_resources();
@@ -82,108 +59,95 @@ void plug_post_reload(void *state)
     load_resources();
 }
 
-#define Lerp(from, to, w) (from * (1 - w) + to * w)
+Camera2D camera = {{155, 55}, {0, 0}, 0.0f, 1.0f};
+Vector2 mp = {0, 0};
+Vector2 p1 ={0, 0}, p2 = { 60, 0}, p3 = { 0, 60};
+Animation animation[10];
+AnimValue p1_to = {
+    .type = ANIMATION_POSITION,
+    .from.position = {0, 0},
+    .to.position = {60, 60},
+};
+AnimValue p2_to = {
+    .type = ANIMATION_POSITION,
+    .from.position = {60, 0},
+    .to.position = {0, 0},
+};
+AnimValue p3_to = {
+    .type = ANIMATION_POSITION,
+    .from.position = {0, 60},
+    .to.position = {60, 0},
+};
+AnimValue p4_to = {
+    .type = ANIMATION_POSITION,
+    .from.position = {60, 60},
+    .to.position = {0, 60},
+};
+AnimValue c1_to = {
+    .type = ANIMATION_COLOR,
+    .from.color = RED,
+    .to.color = PINK,
+};
+Color c1 = RED;
+Color c2 = BLUE;
+Color c3 = GREEN;
 
-float animation_value(Animation *a)
-{
-    Keyframe *kf = a->kf;
-    if(a->i >= a->count) return kf[a->count - 1].to;
+Anim anim[16];
+Sequence seq =  {
+    .children = anim + 2,
+    .count = 2,
+};
+Parallel para =  {
+    .children = anim,
+    .count = 2,
+};
 
-    kf += a->i;
-    return Lerp(kf->from, kf->to, a->duration/kf->duration);
-}
-
-float update_animation(Animation *a, float dt)
-{
-    if(a->i >= a->count)
-    {
-        if(a->loop)
-        {
-            a->i = 0;
-            a->duration = 0;
-        }
-        return animation_value(a);
-    }
-
-    Keyframe *kf = a->kf;
-    kf += a->i;
-
-    a->duration += dt;
-
-    while(a->duration >= kf->duration)
-    {
-        a->duration -= kf->duration;
-        a->i++;
-        if(a->i < a->count)
-        {
-            kf = a->kf + a->i;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return animation_value(a);
-}
-
+Parallel para2 =  {
+    .children = anim + 5,
+    .count = 2,
+};
 
 void show(float dt, float w, float h)
 {
-    int rw = 80;
-    int rh = 45;
+    (void)w;
+    (void)h;
 
-    int pad = rw*0.15;
-    int font_size = 40;
+    int rw = 50;
+    int rh = 50;
 
+    BeginMode2D(camera);
     ClearBackground(BLANK);
 
-    float t1 = update_animation(p->anim, dt);
-    float t2 = update_animation(p->anim + 1, dt);
-
-    for(int i = -3; i < 4; i++)
+    static int flag = 1;
+    if(flag)
     {
-        int pos = (rw + pad)*t1;
-        DrawRectangle(i * (pad + rw) - pos + (w - rw)/2, (h - rh)/2, rw, rh, RAYWHITE);
-
-        Color c = BLACK;
-        float _t = t2;
-
-        if(i < 0)
-        {
-            _t = 0;
-        }
-        else if(i == 0)
-        {
-            if(p->anim[1].i != 0)
-                _t = t2;
-            else
-                _t = 0;
-        }
-        else
-        {
-            _t = 1;
-        }
-
-        DrawTextEx(
-            p->font,
-            "0", 
-            (Vector2){i * (pad + rw) - pos + (w - rw)/2 + rw/2 - font_size/2,
-            (h - rh)/2 + rh/2-font_size/2}, font_size*(1-_t), 0, c);
-        DrawTextEx(
-            p->font,
-            "1", 
-            (Vector2){i * (pad + rw) - pos + (w - rw)/2 + rw/2 - font_size/2,
-            (h - rh)/2 + rh/2-font_size/2}, font_size*(_t), 0, c);
+        flag = !flag;
+        animation_init(&animation[0], 0.5, p1_to, &p1);
+        animation_init(&animation[1], 0.5, p2_to, &p2);
+        animation_init(&animation[2], 0.5, p3_to, &p3);
+        animation_init(&animation[3], 0.5, p4_to, &p1);
+        animation_init(&animation[4], 0.5, c1_to, &c1);
+    
+        anim_init(&anim[0], ANIM_ANIMATION, animation);
+        anim_init(&anim[1], ANIM_ANIMATION, animation+1);
+        anim_init(&anim[2], ANIM_ANIMATION, animation+2);
+        anim_init(&anim[3], ANIM_ANIMATION, animation+3);
+        anim_init(&anim[4], ANIM_ANIMATION, animation+4);
+        anim_init(&anim[5], ANIM_SEQUENCE, &seq);
+        anim_init(&anim[6], ANIM_PARALLEL, &para);
+        anim_init(&anim[7], ANIM_PARALLEL, &para2);
+        anim[7].loop = 1;
     }
 
-    Rectangle rec = {
-        .x = (w - rw - 20)/2,
-        .y = (h - rh - 20)/2,
-        .width = rw + 20,
-        .height = rh + 20,
-    };
-    DrawRectangleLinesEx(rec, 5, BLUE);
+    // anim_update(&anim[5], dt);
+    // anim_update(&anim[6], dt);
+    anim_update(&anim[7], dt);
+
+    DrawRectangle(p1.x, p1.y, rw, rh, c1);
+    DrawRectangle(p2.x, p2.y, rw, rh, c2);
+    DrawRectangle(p3.x, p3.y, rw, rh, c3);
+
+    EndMode2D();
 }
 
 #define AUDIO_SAMPLE_RATE 44100
@@ -231,5 +195,4 @@ void plug_exit()
 {
     unload_resources();
     free(p);
-    system("ffmpeg -i output.mp4 -i output.wav -c:v copy -c:a copy out.mp4");
 }
