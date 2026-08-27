@@ -1,5 +1,5 @@
 #pragma once
-
+#include "std.h"
 #define MAP_WIDTH 10
 #define MAP_HEIGHT 10
 
@@ -22,15 +22,16 @@ enum MapType {
     MAX,
 };
 
-enum Option {
-    OPTION_NONE,
-    OPTION_QUIT,
-    OPTION_RECORD_BACK,
-    OPTION_MOV_UP,
-    OPTION_MOV_DOWN,
-    OPTION_MOV_LEFT,
-    OPTION_MOV_RIGHT,
-};
+typedef enum CoreOps {
+    CMD_NONE,
+    CMD_MOV_UP,
+    CMD_MOV_DOWN,
+    CMD_MOV_LEFT,
+    CMD_MOV_RIGHT,
+    CMD_UNDO,
+    CMD_ENTER,
+    CMD_BACK,
+} CoreOps;
 
 typedef struct Record {
     int pos_f;
@@ -55,3 +56,5 @@ int find_player(Map *map);
 
 void records_add(Map *map, int pos_f, int direct, int step, int pos_t);
 void records_undo(Map *map);
+
+void load_map(Map *map, int index);

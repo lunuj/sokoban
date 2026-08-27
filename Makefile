@@ -8,7 +8,7 @@ ifeq ($(OS),)
     else ifeq ($(UNAME_S),Windows_NT)
         OS := Windows
     else
-        OS := Unknown
+        OS := Windows
     endif
 else ifeq ($(OS),Windows_NT)
 	OS := Windows
@@ -61,7 +61,7 @@ ifeq ($(OS), Mac)
 			  -framework CoreFoundation -framework IOKit -framework CoreVideo \
 			  -framework OpenGL -framework QuartzCore
 else ifeq ($(OS), Linux)
-  	OS_LIBS := -ldl -lpthread -lm
+  	OS_LIBS := -ldl -lpthread -lm -lX11
 else ifeq ($(OS), Windows)
 	OS_LIBS := -lgdi32 -luser32 -lkernel32 -lshell32 -lopengl32 -lwinmm
 else
@@ -81,7 +81,7 @@ LIBS 			:= $(foreach f,$(notdir $(LIB_FILES)),-l$(basename $(patsubst lib%,%,$(f
 
 # 编译标志
 CFLAGS          := -Wall -Wextra -g -Wno-unused-variable -Wno-missing-braces
-INCLUDE         := -I$(INCLUDE_DIR) $(MODULES_INC)
+INCLUDE         := -I$(INCLUDE_DIR) -I$(SOURCE_DIR) $(MODULES_INC)
 LIB             := -L$(LIB_DIR)/$(OS) $(LIBS_DIR) $(MODULES_OBJ) $(MODULES_FILE) -Wl,-rpath=$(LIB_DIR)/$(OS) $(MODULES_PATH)
 
 # 创建目录的规则

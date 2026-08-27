@@ -1,14 +1,15 @@
+#include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> 
-#include <assert.h> 
-#include <math.h> 
+#include <string.h>
 
-#include "raylib/raylib.h"
-#include "plug.h"
 #include "anim.h"
+#include "plug.h"
+#include "raylib/raylib.h"
 
-typedef struct {
+typedef struct
+{
     size_t size;
 
     Font font;
@@ -50,7 +51,7 @@ void plug_post_reload(void *state)
 {
     p = state;
 
-    if(p->size < sizeof(*p))
+    if (p->size < sizeof(*p))
     {
         p = realloc(p, sizeof(*p));
         p->size = sizeof(*p);
@@ -61,7 +62,7 @@ void plug_post_reload(void *state)
 
 Camera2D camera = {{155, 55}, {0, 0}, 0.0f, 1.0f};
 Vector2 mp = {0, 0};
-Vector2 p1 ={0, 0}, p2 = { 60, 0}, p3 = { 0, 60};
+Vector2 p1 = {0, 0}, p2 = {60, 0}, p3 = {0, 60};
 Animation animation[10];
 AnimValue p1_to = {
     .type = ANIMATION_POSITION,
@@ -93,16 +94,16 @@ Color c2 = BLUE;
 Color c3 = GREEN;
 
 Anim anim[16];
-Sequence seq =  {
+Sequence seq = {
     .children = anim + 2,
     .count = 2,
 };
-Parallel para =  {
+Parallel para = {
     .children = anim,
     .count = 2,
 };
 
-Parallel para2 =  {
+Parallel para2 = {
     .children = anim + 5,
     .count = 2,
 };
@@ -119,7 +120,7 @@ void show(float dt, float w, float h)
     ClearBackground(BLANK);
 
     static int flag = 1;
-    if(flag)
+    if (flag)
     {
         flag = !flag;
         animation_init(&animation[0], 0.5, p1_to, &p1);
@@ -127,12 +128,12 @@ void show(float dt, float w, float h)
         animation_init(&animation[2], 0.5, p3_to, &p3);
         animation_init(&animation[3], 0.5, p4_to, &p1);
         animation_init(&animation[4], 0.5, c1_to, &c1);
-    
+
         anim_init(&anim[0], ANIM_ANIMATION, animation);
-        anim_init(&anim[1], ANIM_ANIMATION, animation+1);
-        anim_init(&anim[2], ANIM_ANIMATION, animation+2);
-        anim_init(&anim[3], ANIM_ANIMATION, animation+3);
-        anim_init(&anim[4], ANIM_ANIMATION, animation+4);
+        anim_init(&anim[1], ANIM_ANIMATION, animation + 1);
+        anim_init(&anim[2], ANIM_ANIMATION, animation + 2);
+        anim_init(&anim[3], ANIM_ANIMATION, animation + 3);
+        anim_init(&anim[4], ANIM_ANIMATION, animation + 4);
         anim_init(&anim[5], ANIM_SEQUENCE, &seq);
         anim_init(&anim[6], ANIM_PARALLEL, &para);
         anim_init(&anim[7], ANIM_PARALLEL, &para2);
@@ -167,21 +168,37 @@ void plug_update(Env *env)
 
     memset(silence, 0, sizeof(silence));
 
-    if(env->record)
+    if (env->record)
     {
         Image screen = LoadImageFromScreen();
-        fwrite(screen.data, screen.width * screen.height*4, 1, env->f_video);
+        fwrite(screen.data, screen.width * screen.height * 4, 1, env->f_video);
         UnloadImage(screen);
 
-        if(env->audio_index + AUDIO_SAMPLE_FRAME_COUNT < w.frameCount)
+        if (env->audio_index + AUDIO_SAMPLE_FRAME_COUNT < w.frameCount)
         {
-            fwrite(w.data + env->audio_index*AUDIO_SAMPLE_SIZE*AUDIO_SAMPLE_CHANNEL, AUDIO_SAMPLE_FRAME_BYTE, 1, env->f_audio);
+            fwrite(
+                w.data + env->audio_index * AUDIO_SAMPLE_SIZE * AUDIO_SAMPLE_CHANNEL,
+                AUDIO_SAMPLE_FRAME_BYTE,
+                1,
+                env->f_audio
+            );
             env->audio_index += AUDIO_SAMPLE_FRAME_COUNT;
         }
-        else if(env->audio_index < w.frameCount)
+        else if (env->audio_index < w.frameCount)
         {
-            fwrite(w.data + env->audio_index*AUDIO_SAMPLE_SIZE*AUDIO_SAMPLE_CHANNEL, (w.frameCount - env->audio_index)*AUDIO_SAMPLE_SIZE*AUDIO_SAMPLE_CHANNEL, 1, env->f_audio);
-            fwrite(silence, AUDIO_SAMPLE_FRAME_BYTE - (w.frameCount - env->audio_index)*AUDIO_SAMPLE_SIZE*AUDIO_SAMPLE_CHANNEL, 1, env->f_audio);
+            fwrite(
+                w.data + env->audio_index * AUDIO_SAMPLE_SIZE * AUDIO_SAMPLE_CHANNEL,
+                (w.frameCount - env->audio_index) * AUDIO_SAMPLE_SIZE * AUDIO_SAMPLE_CHANNEL,
+                1,
+                env->f_audio
+            );
+            fwrite(
+                silence,
+                AUDIO_SAMPLE_FRAME_BYTE -
+                    (w.frameCount - env->audio_index) * AUDIO_SAMPLE_SIZE * AUDIO_SAMPLE_CHANNEL,
+                1,
+                env->f_audio
+            );
             env->audio_index += AUDIO_SAMPLE_FRAME_COUNT;
         }
         else

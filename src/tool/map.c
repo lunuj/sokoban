@@ -1,6 +1,6 @@
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 #include "core.h"
 #include "ui/cli.h"
 
@@ -8,7 +8,8 @@ int load_map_from_txt(const char *filename, Map *map)
 {
     FILE *fp = fopen(filename, "r");
 
-    if(fp == NULL){
+    if (fp == NULL)
+    {
         perror("打开文件失败\n");
         return -1;
     }
@@ -18,18 +19,18 @@ int load_map_from_txt(const char *filename, Map *map)
 
     memset(map, 0, sizeof(*map));
 
-    while((ch = fgetc(fp)) != EOF)
+    while ((ch = fgetc(fp)) != EOF)
     {
-        if(index >= MAP_MAX_SIZE)
+        if (index >= MAP_MAX_SIZE)
         {
             memset(map, 0, sizeof(*map));
             break;
         }
 
-        if(ch == '\n')
+        if (ch == '\n')
         {
             map->h++;
-            if(map->w == 0)
+            if (map->w == 0)
                 map->w = index - 1;
         }
         else
@@ -49,13 +50,14 @@ int load_map_from_bin(const char *filename, Map *map)
 {
     FILE *fp = fopen(filename, "rb");
 
-    if(fp == NULL){
+    if (fp == NULL)
+    {
         perror("打开文件失败\n");
         return -1;
     }
 
     fread(map, sizeof(*map), 1, fp);
-    
+
     fclose(fp);
     return 0;
 }
@@ -65,12 +67,13 @@ int save_map_to_txt(const char *filename, Map *map)
     char ch = 0;
     FILE *fp = fopen(filename, "w+");
 
-    if(fp == NULL){
+    if (fp == NULL)
+    {
         perror("打开文件失败\n");
         return -1;
     }
 
-    for(int j = 0; j < map->h; j++)
+    for (int j = 0; j < map->h; j++)
     {
         for (int i = 0; i < map->w; i++)
         {
@@ -87,13 +90,14 @@ int save_map_to_bin(const char *filename, Map *map)
 {
     FILE *fp = fopen(filename, "wb+");
 
-    if(fp == NULL){
+    if (fp == NULL)
+    {
         perror("打开文件失败\n");
         return -1;
     }
 
     fwrite(map, sizeof(*map), 1, fp);
-    
+
     fclose(fp);
     return 0;
 }
