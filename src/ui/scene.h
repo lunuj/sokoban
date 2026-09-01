@@ -13,6 +13,7 @@ enum Option
     OPTION_MOV_LEFT,
     OPTION_MOV_RIGHT,
     OPTION_UNDO,
+    OPTION_RELOAD,
 };
 
 enum SceneType

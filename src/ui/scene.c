@@ -1,5 +1,3 @@
-#include "std.h"
-
 #include "raylib/raylib.h"
 #include "scene.h"
 
@@ -90,6 +88,8 @@ int scene_key_map(int c)
     case KEY_E:
         ret = OPTION_UNDO;
         break;
+    case KEY_R:
+        ret = OPTION_RELOAD;
     default:
         break;
     }
