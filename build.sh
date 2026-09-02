@@ -114,6 +114,7 @@ case "$cmd" in
             make $flag "$make_flags"
             shift
             args="$*"
+            make echo-version
             check_and_run "$flag" $args
         fi
         ;;
