@@ -1,5 +1,5 @@
+#include <stdlib.h>
 #include "end.h"
-#include "std.h"
 
 #include "raylib/raylib.h"
 #include "ui/scene.h"
@@ -75,7 +75,9 @@ static void end_update(Scene *scene, int c)
     }
 }
 
-static void end_exit(Scene *scene) {}
+static void end_exit(Scene *scene) {
+    (void)scene;
+}
 
 static SceneOps end = {
     .init = end_init,

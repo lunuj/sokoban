@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "raylib/raylib.h"
 #include "scene.h"
 
@@ -53,16 +55,14 @@ void scene_draw()
 
     BeginDrawing();
     scene->ops.draw(scene);
-    if (scene->overlay != NULL)
-        scene->overlay->ops.draw(scene->overlay);
+    if (scene->overlay != NULL) scene->overlay->ops.draw(scene->overlay);
     EndDrawing();
 }
 
 int scene_key_map(int c)
 {
     int ret = OPTION_NONE;
-    switch (c)
-    {
+    switch (c) {
     case KEY_W:
     case KEY_UP:
         ret = OPTION_MOV_UP;
@@ -100,20 +100,15 @@ void scene_update(int c)
 {
     Scene *scene = get_current();
 
-    if (scene->overlay != NULL)
-    {
-        if (scene->overlay->end)
-        {
+    if (scene->overlay != NULL) {
+        if (scene->overlay->end) {
             scene->overlay = NULL;
-        }
-        else
-        {
+        } else {
             scene = scene->overlay;
         }
     }
 
-    if (!scene->end)
-        scene->ops.update(scene, c);
+    if (!scene->end) scene->ops.update(scene, c);
 }
 
 void scene_set_status(int index, int status)
@@ -132,8 +127,7 @@ bool scene_get_status(int index)
 
 void scene_exit()
 {
-    for (int i = 0; i < SCENE_MAX; i++)
-    {
+    for (int i = 0; i < SCENE_MAX; i++) {
         scene_list[i].ops.exit(scene_list + i);
     }
 }

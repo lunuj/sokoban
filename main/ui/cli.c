@@ -1,4 +1,4 @@
-#include "std.h"
+#include <stdio.h>
 
 #include "core.h"
 #include "tool/map.h"

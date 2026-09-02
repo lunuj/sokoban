@@ -1,4 +1,4 @@
-#include "std.h"
+#include <stdio.h>
 
 #include "core.h"
 #include "ui/scene.h"
@@ -17,8 +17,7 @@ char line[128];
 int map_to_cli(int maptype)
 {
     int ch = 0;
-    switch (maptype)
-    {
+    switch (maptype) {
     case MAP_BLOCK:
         ch = BLOCK;
         break;
@@ -51,8 +50,7 @@ int map_to_cli(int maptype)
 int cli_to_map(int ch)
 {
     int ret = 0;
-    switch (ch)
-    {
+    switch (ch) {
     case BLOCK:
         ret = MAP_BLOCK;
         break;
@@ -84,10 +82,8 @@ int cli_to_map(int ch)
 
 void cli_show(Map *map)
 {
-    for (int i = 0; i < map->h; i++)
-    {
-        for (int j = 0; j < map->w; j++)
-        {
+    for (int i = 0; i < map->h; i++) {
+        for (int j = 0; j < map->w; j++) {
             printf("%c", map_to_cli(map->map[i * map->w + j]));
         }
         printf("\n");
@@ -99,8 +95,7 @@ int cli_get()
     int ret = CMD_NONE;
 
     fgets(line, sizeof(line), stdin);
-    switch (line[0])
-    {
+    switch (line[0]) {
     case 'q':
         ret = CMD_BACK;
         break;

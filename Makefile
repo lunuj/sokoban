@@ -66,7 +66,7 @@ BIN_SUFFIX      := .out
 SOURCE_DIR      := src
 LIB_DIR         := lib
 INCLUDE_DIR     := include
-TEST_DIR        := test
+MAIN_DIR        := main
 OUTPUT_DIR      := output
 RES_DIR      	:= res
 OUTPUT_DEP_DIR  := $(OUTPUT_DIR)/.dep
@@ -74,7 +74,7 @@ OUTPUT_OBJ_DIR  := $(OUTPUT_DIR)/.obj
 MODULES_DIR     := modules
 
 # 确保必要目录存在
-$(shell mkdir -p $(SOURCE_DIR) $(LIB_DIR)/$(OS) $(INCLUDE_DIR) $(TEST_DIR) $(OUTPUT_DEP_DIR) $(OUTPUT_OBJ_DIR) $(MODULES_DIR) $(RES_DIR)) 
+$(shell mkdir -p $(SOURCE_DIR) $(LIB_DIR)/$(OS) $(INCLUDE_DIR) $(MAIN_DIR) $(OUTPUT_DEP_DIR) $(OUTPUT_OBJ_DIR) $(MODULES_DIR) $(RES_DIR)) 
 	
 # 源文件收集
 SRCS            := $(shell find $(SOURCE_DIR) -type f -name "*.c")
@@ -85,16 +85,16 @@ SRCS_NO_MAIN    := $(filter-out $(SOURCE_DIR)/main.c, $(SRCS))
 OBJS_NO_MAIN    := $(patsubst %.c,$(OUTPUT_OBJ_DIR)/%.o,$(SRCS_NO_MAIN))
 DEPS_NO_MAIN    := $(patsubst %.c,$(OUTPUT_DEP_DIR)/%.d,$(SRCS_NO_MAIN))
 
-TSET_SRCS       := $(shell find $(TEST_DIR) -type f -name "*.c")
-TEST_OBJS       := $(patsubst %.c,$(OUTPUT_OBJ_DIR)/%.o,$(TSET_SRCS))
-TEST_DEPS       := $(patsubst %.c,$(OUTPUT_DEP_DIR)/%.d,$(TSET_SRCS))
-TEST_OUT        := $(patsubst $(TEST_DIR)/%.c,$(OUTPUT_DIR)/%$(BIN_SUFFIX),$(TSET_SRCS))
+MAIN_SRCS       := $(shell find $(MAIN_DIR) -type f -name "*.c")
+MAIN_OBJS       := $(patsubst %.c,$(OUTPUT_OBJ_DIR)/%.o,$(MAIN_SRCS))
+MAIN_DEPS       := $(patsubst %.c,$(OUTPUT_DEP_DIR)/%.d,$(MAIN_SRCS))
+MAIN_OUT        := $(patsubst $(MAIN_DIR)/%.c,$(OUTPUT_DIR)/%$(BIN_SUFFIX),$(MAIN_SRCS))
 
 TARGET_NAME 	?= plug
 
 -include $(DEPS)
 -include $(DEPS_NO_MAIN)
--include $(TEST_DEPS)
+-include $(MAIN_DEPS)
 
 ifeq ($(OS), Mac)
 	OS_LIBS := -framework Cocoa -framework AppKit -framework Foundation \
@@ -136,10 +136,10 @@ $(OUTPUT_OBJ_DIR)/%.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MP -MF $(OUTPUT_DEP_DIR)/$*.d -MT $@ -c $< -o $@
 
 # 默认目标
-all:  $(TEST_OUT)
+all:  $(MAIN_OUT)
 
 # 测试目标
-$(OUTPUT_DIR)/%.out: $(OUTPUT_OBJ_DIR)/$(TEST_DIR)/%.o $(OBJS_NO_MAIN) | $(LIB_FILES) $(OUTPUT_OBJ_DIR)/$(TEST_DIR)/%.o generate-version
+$(OUTPUT_DIR)/%.out: $(OUTPUT_OBJ_DIR)/$(MAIN_DIR)/%.o $(OBJS_NO_MAIN) | $(LIB_FILES) $(OUTPUT_OBJ_DIR)/$(MAIN_DIR)/%.o generate-version
 	$(call MAKE_DIR,$(dir $@))
 	$(CC) $^ $(LIB) $(LIBS) $(OS_LIBS) $(MODULES_FILE) -o $@
 

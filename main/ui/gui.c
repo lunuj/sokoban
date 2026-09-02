@@ -1,4 +1,3 @@
-#include "std.h"
 
 #include "raylib/raylib.h"
 #include "ui/scene.h"

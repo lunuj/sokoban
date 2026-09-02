@@ -1,5 +1,5 @@
+#include <stdlib.h>
 #include "menu.h"
-#include "std.h"
 
 #include "raylib/raylib.h"
 #include "ui/scene.h"
@@ -110,7 +110,9 @@ static void menu_update(Scene *scene, int c)
     }
 }
 
-static void menu_exit(Scene *scene) {}
+static void menu_exit(Scene *scene) {
+    (void)scene;
+}
 
 static SceneOps menu = {
     .init = menu_init,

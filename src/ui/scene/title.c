@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "title.h"
 
 #include "raylib/raylib.h"
@@ -6,8 +8,7 @@
 #define RES(str) "res/ui/gui/" #str
 #define SELECT_NUM 4
 
-enum TitleContext
-{
+enum TitleContext {
     NEW,
     SELECT,
     SETTING,
@@ -21,8 +22,7 @@ static Vector2 pos[SELECT_NUM] = {
     {200, 290},
 };
 
-struct TitlePri
-{
+struct TitlePri {
     Texture2D bg;
     int index;
     Texture2D select;
@@ -55,22 +55,14 @@ static void title_draw(Scene *scene)
     int screen_height = GetScreenHeight();
 
     ClearBackground(WHITE);
-    DrawTexturePro(
-        pri->bg,
-        (Rectangle){0, 0, pri->bg.width, pri->bg.height},
-        (Rectangle){0, 0, screen_width, screen_height},
-        (Vector2){0, 0},
-        0,
-        WHITE
-    );
-    DrawTexturePro(
-        pri->select,
-        (Rectangle){0, 0, pri->select.width, pri->select.height},
-        (Rectangle){pos[pri->index].x, pos[pri->index].y, pri->select.width, pri->select.height},
-        (Vector2){0, 0},
-        0,
-        WHITE
-    );
+    DrawTexturePro(pri->bg, (Rectangle){0, 0, pri->bg.width, pri->bg.height},
+                   (Rectangle){0, 0, screen_width, screen_height},
+                   (Vector2){0, 0}, 0, WHITE);
+    DrawTexturePro(pri->select,
+                   (Rectangle){0, 0, pri->select.width, pri->select.height},
+                   (Rectangle){pos[pri->index].x, pos[pri->index].y,
+                               pri->select.width, pri->select.height},
+                   (Vector2){0, 0}, 0, WHITE);
 }
 
 static void title_exit(Scene *scene)
@@ -87,8 +79,7 @@ static void title_update(Scene *scene, int c)
     struct TitlePri *pri = (struct TitlePri *)scene->pri;
 
     int *index = &pri->index;
-    switch (c)
-    {
+    switch (c) {
     case OPTION_MOV_UP:
     case OPTION_MOV_LEFT:
         *index = (*index + SELECT_NUM - 1) % SELECT_NUM;
@@ -98,8 +89,7 @@ static void title_update(Scene *scene, int c)
         *index = (*index + 1) % SELECT_NUM;
         break;
     case OPTION_ENTER:
-        switch (*index)
-        {
+        switch (*index) {
         case NEW:
             scene_reset(GAME);
             set_current(GAME);

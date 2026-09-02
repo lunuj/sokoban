@@ -1,5 +1,5 @@
+#include <stdlib.h>
 #include "game.h"
-#include "std.h"
 
 #include "core.h"
 #include "raylib/raylib.h"
@@ -42,7 +42,7 @@ static void game_init(Scene *scene)
     pri->map.is_recording = true;
     pri->map_textrue[BOX] = LoadTexture(RES(box));
     pri->map_textrue[PLAYER] = LoadTexture(RES(player));
-    pri->map_textrue[SPACE] = LoadTexture(RES(spcae));
+    pri->map_textrue[SPACE] = LoadTexture(RES(space));
     pri->map_textrue[TARGET] = LoadTexture(RES(target));
     pri->map_textrue[BLOCK] = LoadTexture(RES(block));
 }

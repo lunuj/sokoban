@@ -168,8 +168,9 @@ case "$cmd" in
         usage
         ;;
     my)
+        clear
         ./build.sh dynamic
-        ./build.sh run test
+        ./build.sh run main
         ;;
     *)
         echo "Unknown command: $cmd"
