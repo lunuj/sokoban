@@ -1,25 +1,18 @@
-
-#include "raylib/raylib.h"
+#include "platform/platform.h"
 #include "ui/scene.h"
 
 int main()
 {
-    const int screenWidth = 600;
-    const int screenHeight = 400;
+    init_window(600, 400, "test", 0);
 
-    SetConfigFlags(FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_HIGHDPI);
-    InitWindow(screenWidth, screenHeight, "handmake");
-    SetTargetFPS(60);
-
-    scene_init();
-    while (!scene_is_end())
-    {
-        scene_draw();
-        scene_update(scene_key_map(GetKeyPressed()));
+    scene_init(get_platform_services());
+    while (!window_should_close()) {
+        scene_render();
+        scene_update(scene_key_map(get_key_pressed()));
     }
     scene_exit();
 
-    CloseWindow();
+    close_window();
 
     return 0;
 }

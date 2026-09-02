@@ -8,36 +8,50 @@
 #include "scene/game/menu.h"
 #include "scene/title.h"
 
-static int current;
-static Scene scene_list[SCENE_MAX];
+#include "plugin/plugin.h"
+
+struct PluginPri {
+    uint32_t magic;
+    Version verion;
+    PlatformServices *svc;
+
+    int current;
+    Scene scene_list[SCENE_MAX];
+} *pri;
 
 Scene *get_current()
 {
-    return scene_list + current;
+    return pri->scene_list + pri->current;
 }
 
 static Scene *get_scene(int index)
 {
-    return scene_list + index;
+    return pri->scene_list + index;
 }
 
 void set_current(int index)
 {
-    current = index;
+    pri->current = index;
 }
 
-void scene_init()
+// TODO 子场景下函数调用，资源申请问题
+void scene_init(PlatformServices *service)
 {
+    pri = service->calloc(1, sizeof(PluginPri));
+    pri->magic = 0xdeadbeef;
+    pri->verion = version_get_current();
+    pri->svc = service;
+
     SceneOps ops = title_get_ops();
-    ops.init(scene_list + TITLE);
-    current = TITLE;
+    ops.init(pri->scene_list + TITLE);
+    pri->current = TITLE;
 
     ops = game_get_ops();
-    ops.init(scene_list + GAME);
+    ops.init(pri->scene_list + GAME);
     ops = menu_get_ops();
-    ops.init(scene_list + GAME_MENU);
+    ops.init(pri->scene_list + GAME_MENU);
     ops = end_get_ops();
-    ops.init(scene_list + GAME_END);
+    ops.init(pri->scene_list + GAME_END);
 }
 
 void scene_reset(int index)
@@ -49,7 +63,7 @@ void scene_reset(int index)
     scene->end = false;
 }
 
-void scene_draw()
+void scene_render()
 {
     Scene *scene = get_current();
 
@@ -96,7 +110,7 @@ int scene_key_map(int c)
     return ret;
 }
 
-void scene_update(int c)
+void scene_update(int key)
 {
     Scene *scene = get_current();
 
@@ -108,7 +122,10 @@ void scene_update(int c)
         }
     }
 
-    if (!scene->end) scene->ops.update(scene, c);
+    if (scene->end)
+        pri->svc->window_set_close();
+    else
+        scene->ops.update(scene, key);
 }
 
 void scene_set_status(int index, int status)
@@ -128,14 +145,9 @@ bool scene_get_status(int index)
 void scene_exit()
 {
     for (int i = 0; i < SCENE_MAX; i++) {
-        scene_list[i].ops.exit(scene_list + i);
+        pri->scene_list[i].ops.exit(pri->scene_list + i);
     }
-}
-
-bool scene_is_end()
-{
-    Scene *scene = get_current();
-    return scene->end;
+    pri->svc->free(pri);
 }
 
 void scene_set_overlay(int index, int overlay)
@@ -152,3 +164,33 @@ void scene_clr_overlay(int index)
 
     scene->overlay = NULL;
 }
+
+PluginPri *scene_pre_reload(void)
+{
+    return pri;
+}
+
+bool scene_post_reload(PluginPri *plugin)
+{
+    pri = plugin;
+    Version v = version_get_current();
+    pri->svc->log(7, "current version: %s\n", version_get_string(&v));
+    pri->svc->log(7, "plugin version: %s\n", version_get_string(&pri->verion));
+    return version_is_compatible(&v, &pri->verion);
+}
+
+PluginApi PLUGIN_API_NAME = {
+    .name = "scene",
+    .version = VERSION,
+
+    .init = scene_init,
+    .exit = scene_exit,
+
+    .pre_reload = scene_pre_reload,
+    .post_reload = scene_post_reload,
+
+    .render = scene_render,
+    .update = scene_update,
+
+    .key_map = scene_key_map,
+};

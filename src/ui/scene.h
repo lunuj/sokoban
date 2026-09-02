@@ -1,5 +1,7 @@
 #pragma once
 
+#include "plugin/plugin.h"
+
 enum Option
 {
     OPTION_NONE,
@@ -43,20 +45,18 @@ typedef struct Scene
     void *pri;
 } Scene;
 
-void scene_init();
-void scene_reset(int index);
-void scene_draw();
-void scene_update(int c);
-void scene_set_status(int index, int status);
-bool scene_get_status(int index);
+void scene_init(PlatformServices *service);
 void scene_exit();
 
-bool scene_is_end();
+void scene_render();
+void scene_update(int key);
+
+void scene_reset(int index);
+void scene_set_status(int index, int status);
+bool scene_get_status(int index);
 
 void scene_set_overlay(int index, int overlay);
 void scene_clr_overlay(int index);
 
 int scene_key_map(int c);
-
-Scene *get_current();
 void set_current(int index);
