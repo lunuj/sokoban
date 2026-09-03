@@ -45,7 +45,7 @@ static void menu_reset(Scene *scene)
     pri->index = 0;
 }
 
-static void menu_draw(Scene *scene)
+static void menu_render(Scene *scene)
 {
     struct MenuPri *pri = (struct MenuPri *)scene->pri;
 
@@ -94,7 +94,7 @@ static void menu_update(Scene *scene, int c)
             scene->end = true;
             break;
         case EXIT:
-            set_current(TITLE);
+            scene_set_current(TITLE);
             scene_set_status(TITLE, true);
             scene->end = true;
             break;
@@ -117,7 +117,7 @@ static void menu_exit(Scene *scene) {
 static SceneOps menu = {
     .init = menu_init,
     .reset = menu_reset,
-    .draw = menu_draw,
+    .render = menu_render,
     .update = menu_update,
     .exit = menu_exit,
 };

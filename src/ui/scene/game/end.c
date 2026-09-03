@@ -37,7 +37,7 @@ static void end_reset(Scene *scene)
     pri->index = 0;
 }
 
-static void end_draw(Scene *scene)
+static void end_render(Scene *scene)
 {
     struct EndPri *pri = (struct EndPri *)scene->pri;
 
@@ -69,7 +69,7 @@ static void end_update(Scene *scene, int c)
     case OPTION_NONE:
         break;
     default:
-        set_current(TITLE);
+        scene_set_current(TITLE);
         scene->end = true;
         break;
     }
@@ -82,7 +82,7 @@ static void end_exit(Scene *scene) {
 static SceneOps end = {
     .init = end_init,
     .reset = end_reset,
-    .draw = end_draw,
+    .render = end_render,
     .update = end_update,
     .exit = end_exit,
 };

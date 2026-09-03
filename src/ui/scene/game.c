@@ -55,7 +55,7 @@ static void game_reset(Scene *scene)
     pri->map.is_recording = true;
 }
 
-static void game_draw(Scene *scene)
+static void game_render(Scene *scene)
 {
     struct GamePri *pri = (struct GamePri *)scene->pri;
 
@@ -141,7 +141,7 @@ static void game_exit(Scene *scene)
 static SceneOps game_ops = {
     .init = game_init,
     .reset = game_reset,
-    .draw = game_draw,
+    .render = game_render,
     .update = game_update,
     .exit = game_exit
 };

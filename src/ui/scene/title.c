@@ -47,7 +47,7 @@ static void title_reset(Scene *scene)
     pri->index = 0;
 }
 
-static void title_draw(Scene *scene)
+static void title_render(Scene *scene)
 {
     struct TitlePri *pri = (struct TitlePri *)scene->pri;
 
@@ -92,7 +92,7 @@ static void title_update(Scene *scene, int c)
         switch (*index) {
         case NEW:
             scene_reset(GAME);
-            set_current(GAME);
+            scene_set_current(GAME);
             break;
         case SELECT:
             break;
@@ -116,7 +116,7 @@ static void title_update(Scene *scene, int c)
 static SceneOps title_ops = {
     .init = title_init,
     .reset = title_reset,
-    .draw = title_draw,
+    .render = title_render,
     .update = title_update,
     .exit = title_exit,
 };

@@ -33,7 +33,7 @@ typedef struct SceneOps
     void (*init)(Scene *scene);
     void (*reset)(Scene *scene);
     void (*update)(Scene *scene, int c);
-    void (*draw)(Scene *scene);
+    void (*render)(Scene *scene);
     void (*exit)(Scene *scene);
 } SceneOps;
 
@@ -45,6 +45,7 @@ typedef struct Scene
     void *pri;
 } Scene;
 
+
 void scene_init(PlatformServices *service);
 void scene_exit();
 
@@ -54,9 +55,9 @@ void scene_update(int key);
 void scene_reset(int index);
 void scene_set_status(int index, int status);
 bool scene_get_status(int index);
+void scene_set_current(int index);
 
 void scene_set_overlay(int index, int overlay);
 void scene_clr_overlay(int index);
 
 int scene_key_map(int c);
-void set_current(int index);

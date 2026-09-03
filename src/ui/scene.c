@@ -29,7 +29,7 @@ static Scene *get_scene(int index)
     return pri->scene_list + index;
 }
 
-void set_current(int index)
+void scene_set_current(int index)
 {
     pri->current = index;
 }
@@ -68,8 +68,8 @@ void scene_render()
     Scene *scene = get_current();
 
     BeginDrawing();
-    scene->ops.draw(scene);
-    if (scene->overlay != NULL) scene->overlay->ops.draw(scene->overlay);
+    scene->ops.render(scene);
+    if (scene->overlay != NULL) scene->overlay->ops.render(scene->overlay);
     EndDrawing();
 }
 
