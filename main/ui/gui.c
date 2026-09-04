@@ -1,5 +1,5 @@
 #include "platform/platform.h"
-#include "ui/scene.h"
+#include "scene/scene.h"
 
 int main()
 {

@@ -1,21 +1,40 @@
+/**
+ * @file game.c
+ * @brief 游戏主界面模块实现
+ * @details 实现游戏核心玩法，包括地图渲染、玩家控制和游戏逻辑更新
+ */
+
 #include <stdlib.h>
 #include "game.h"
 
 #include "core.h"
 #include "raylib/raylib.h"
-#include "ui/scene.h"
+#include "scene/scene.h"
 
-#include "game/menu.h"
+#include "menu.h"
 
+/** @brief 资源路径宏 */
 #define RES(str) "res/img/" #str ".png"
+/** @brief 地图块渲染大小（像素） */
 #define MAP_BLOCK_SIZE 40
 
+/**
+ * @brief 游戏界面私有数据结构
+ */
 struct GamePri
 {
-    Map map;
-    Texture2D map_textrue[MAX];
+    Map map;                    /**< 地图数据 */
+    Texture2D map_textrue[MAX]; /**< 地图块纹理数组 */
 };
 
+/**
+ * @brief 渲染单个地图块
+ * @param pri 游戏私有数据指针
+ * @param block 地图块类型（位掩码）
+ * @param x 屏幕X坐标
+ * @param y 屏幕Y坐标
+ * @details 根据地图块类型叠加绘制对应的纹理
+ */
 static void show_block(struct GamePri *pri, int block, int x, int y)
 {
     if ((block & MAP_SPACE) == MAP_SPACE)
@@ -30,6 +49,11 @@ static void show_block(struct GamePri *pri, int block, int x, int y)
         DrawTexture(pri->map_textrue[BOX], x, y, WHITE);
 }
 
+/**
+ * @brief 游戏界面初始化
+ * @param scene 场景指针
+ * @details 加载地图和纹理资源
+ */
 static void game_init(Scene *scene)
 {
     scene->end = false;
@@ -47,6 +71,11 @@ static void game_init(Scene *scene)
     pri->map_textrue[BLOCK] = LoadTexture(RES(block));
 }
 
+/**
+ * @brief 游戏界面重置
+ * @param scene 场景指针
+ * @details 重新加载地图并重置录制状态
+ */
 static void game_reset(Scene *scene)
 {
     struct GamePri *pri = (struct GamePri *)scene->pri;
@@ -55,6 +84,11 @@ static void game_reset(Scene *scene)
     pri->map.is_recording = true;
 }
 
+/**
+ * @brief 游戏界面渲染
+ * @param scene 场景指针
+ * @details 绘制所有地图块
+ */
 static void game_render(Scene *scene)
 {
     struct GamePri *pri = (struct GamePri *)scene->pri;
@@ -72,6 +106,11 @@ static void game_render(Scene *scene)
     }
 }
 
+/**
+ * @brief 将操作码转换为地图命令
+ * @param key 操作码
+ * @return 对应的地图命令
+ */
 static int key_to_command(int key)
 {
     int ret = CMD_NONE;
@@ -104,6 +143,12 @@ static int key_to_command(int key)
     return ret;
 }
 
+/**
+ * @brief 游戏界面更新
+ * @param scene 场景指针
+ * @param c 操作码
+ * @details 处理玩家输入，更新游戏状态，检查胜利条件
+ */
 static void game_update(Scene *scene, int c)
 {
     struct GamePri *pri = (struct GamePri *)scene->pri;
@@ -127,6 +172,11 @@ static void game_update(Scene *scene, int c)
     }
 }
 
+/**
+ * @brief 游戏界面退出清理
+ * @param scene 场景指针
+ * @details 卸载纹理并释放内存
+ */
 static void game_exit(Scene *scene)
 {
     struct GamePri *pri = (struct GamePri *)scene->pri;
@@ -138,6 +188,7 @@ static void game_exit(Scene *scene)
     free(pri);
 }
 
+/** @brief 游戏界面操作函数集 */
 static SceneOps game_ops = {
     .init = game_init,
     .reset = game_reset,
@@ -146,6 +197,10 @@ static SceneOps game_ops = {
     .exit = game_exit
 };
 
+/**
+ * @brief 获取游戏界面操作函数集
+ * @return SceneOps结构体
+ */
 SceneOps game_get_ops()
 {
     return game_ops;

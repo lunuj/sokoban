@@ -1,19 +1,37 @@
+/**
+ * @file cli.c
+ * @brief 命令行界面实现模块
+ * @details 提供地图数据的字符转换、显示和命令行输入功能
+ */
+
 #include <stdio.h>
 
 #include "core.h"
-#include "ui/scene.h"
+#include "scene/scene.h"
 
+/** @brief 障碍物字符 */
 #define BLOCK '#'
+/** @brief 空格字符 */
 #define SPACE ' '
+/** @brief 玩家字符 */
 #define PLAYER 'A'
+/** @brief 目标点字符 */
 #define TARGET '_'
+/** @brief 箱子字符 */
 #define BOX 'X'
+/** @brief 玩家在目标点上字符 */
 #define PLAYER_ON_TARGET 'B'
+/** @brief 箱子在目标点上字符 */
 #define BOX_ON_TARGET 'O'
 
-char c = 0;
-char line[128];
+char c = 0;             /**< 临时字符变量 */
+char line[128];         /**< 输入行缓冲区 */
 
+/**
+ * @brief 将地图类型转换为显示字符
+ * @param maptype 地图类型（位掩码）
+ * @return 对应的显示字符
+ */
 int map_to_cli(int maptype)
 {
     int ch = 0;
@@ -47,6 +65,11 @@ int map_to_cli(int maptype)
     return ch;
 }
 
+/**
+ * @brief 将显示字符转换为地图类型
+ * @param ch 显示字符
+ * @return 对应的地图类型（位掩码）
+ */
 int cli_to_map(int ch)
 {
     int ret = 0;
@@ -80,6 +103,10 @@ int cli_to_map(int ch)
     return ret;
 }
 
+/**
+ * @brief 在命令行显示地图
+ * @param map 地图结构体指针
+ */
 void cli_show(Map *map)
 {
     for (int i = 0; i < map->h; i++) {
@@ -90,6 +117,11 @@ void cli_show(Map *map)
     }
 }
 
+/**
+ * @brief 从命令行获取用户输入
+ * @return 对应的命令操作码
+ * @details 读取一行输入，根据首字符转换为对应命令
+ */
 int cli_get()
 {
     int ret = CMD_NONE;

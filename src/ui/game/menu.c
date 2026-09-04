@@ -1,19 +1,31 @@
+/**
+ * @file menu.c
+ * @brief 游戏菜单模块实现
+ * @details 实现游戏内暂停菜单，包含继续、重置、返回主页和退出游戏功能
+ */
+
 #include <stdlib.h>
 #include "menu.h"
 
 #include "raylib/raylib.h"
-#include "ui/scene.h"
+#include "scene/scene.h"
 
+/** @brief 菜单选项数量 */
 #define MAX_NUM 4
 
+/**
+ * @brief 菜单上下文枚举
+ * @details 定义菜单的各个选项
+ */
 enum MenuContext
 {
-    CONTINUE,
-    RESUME,
-    BACK_TO_HOME,
-    EXIT,
+    CONTINUE,       /**< 继续游戏 */
+    RESUME,         /**< 重置游戏 */
+    BACK_TO_HOME,   /**< 返回主页 */
+    EXIT,           /**< 退出游戏 */
 };
 
+/** @brief 菜单文本数组 */
 char *menu_text[MAX_NUM] = {
     "continue game",
     "restore game",
@@ -21,12 +33,20 @@ char *menu_text[MAX_NUM] = {
     "exit game",
 };
 
+/**
+ * @brief 菜单私有数据结构
+ */
 struct MenuPri
 {
-    int index;
-    char **text;
+    int index;      /**< 当前选中的菜单项索引 */
+    char **text;    /**< 菜单文本数组 */
 };
 
+/**
+ * @brief 菜单界面初始化
+ * @param scene 场景指针
+ * @details 初始化菜单状态
+ */
 static void menu_init(Scene *scene)
 {
     scene->end = false;
@@ -38,6 +58,11 @@ static void menu_init(Scene *scene)
     pri->text = menu_text;
 }
 
+/**
+ * @brief 菜单界面重置
+ * @param scene 场景指针
+ * @details 将选中索引重置为0
+ */
 static void menu_reset(Scene *scene)
 {
     struct MenuPri *pri = (struct MenuPri *)scene->pri;
@@ -45,6 +70,11 @@ static void menu_reset(Scene *scene)
     pri->index = 0;
 }
 
+/**
+ * @brief 菜单界面渲染
+ * @param scene 场景指针
+ * @details 绘制半透明背景和菜单选项
+ */
 static void menu_render(Scene *scene)
 {
     struct MenuPri *pri = (struct MenuPri *)scene->pri;
@@ -62,6 +92,12 @@ static void menu_render(Scene *scene)
     }
 }
 
+/**
+ * @brief 菜单界面更新
+ * @param scene 场景指针
+ * @param c 操作码
+ * @details 处理菜单导航和选项选择
+ */
 static void menu_update(Scene *scene, int c)
 {
     struct MenuPri *pri = (struct MenuPri *)scene->pri;
@@ -110,10 +146,16 @@ static void menu_update(Scene *scene, int c)
     }
 }
 
+/**
+ * @brief 菜单界面退出清理
+ * @param scene 场景指针
+ * @details 无资源需要释放
+ */
 static void menu_exit(Scene *scene) {
     (void)scene;
 }
 
+/** @brief 菜单界面操作函数集 */
 static SceneOps menu = {
     .init = menu_init,
     .reset = menu_reset,
@@ -122,6 +164,10 @@ static SceneOps menu = {
     .exit = menu_exit,
 };
 
+/**
+ * @brief 获取菜单界面操作函数集
+ * @return SceneOps结构体
+ */
 SceneOps menu_get_ops()
 {
     return menu;
