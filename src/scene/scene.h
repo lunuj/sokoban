@@ -34,6 +34,7 @@ enum Option
 enum SceneType
 {
     TITLE,      /**< 标题界面 */
+    STAGE,      /**< 关卡选择 */
     GAME,       /**< 游戏主界面 */
     GAME_MENU,  /**< 游戏菜单 */
     GAME_END,   /**< 游戏结束界面 */

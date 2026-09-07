@@ -137,6 +137,8 @@ static void title_update(Scene *scene, int c)
             scene_set_current(GAME);
             break;
         case SELECT:
+            scene_reset(STAGE);
+            scene_set_current(STAGE);
             break;
         case SETTING:
             break;

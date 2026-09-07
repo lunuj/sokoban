@@ -9,10 +9,11 @@
 #include "raylib/raylib.h"
 #include "scene.h"
 
+#include "ui/title.h"
+#include "ui/stage.h"
 #include "ui/game/game.h"
 #include "ui/game/end.h"
 #include "ui/game/menu.h"
-#include "ui/title.h"
 
 #include "plugin/plugin.h"
 
@@ -73,8 +74,8 @@ void scene_init(PlatformServices *service)
     // TODO 场景创建问题，不希望scene管理子场景，而是只提供一个通用框架
     SceneOps ops = title_get_ops();
     ops.init(pri->scene_list + TITLE);
-    pri->current = TITLE;
-
+    ops = stage_get_ops();
+    ops.init(pri->scene_list + STAGE);
     ops = game_get_ops();
     ops.init(pri->scene_list + GAME);
     ops = menu_get_ops();
