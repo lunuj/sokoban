@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include "plugin.h"
+#include "plugin_api.h"
 
 #include "platform/platform_wrapper.h"
 

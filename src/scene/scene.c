@@ -15,7 +15,7 @@
 #include "ui/game/end.h"
 #include "ui/game/menu.h"
 
-#include "plugin/plugin.h"
+#include "plugin/plugin_api.h"
 #include "platform/platform_wrapper.h"
 
 /**
