@@ -5,12 +5,11 @@
  */
 
 #include <dlfcn.h>
-#include <sys/cdefs.h>
 #include <assert.h>
 
 #include "plugin.h"
 
-#include "platform/platform.h"
+#include "platform/platform_wrapper.h"
 
 #include "version.h"
 
@@ -27,7 +26,6 @@ typedef struct Plugin {
 
     bool inited;            /**< 插件是否已初始化 */
 
-    PlatformServices *svc;  /**< 平台服务接口指针 */
     PluginApi *api;         /**< 插件API接口指针 */
     PluginPri *pri;         /**< 插件重载前数据指针 */
 } Plugin;
@@ -104,17 +102,17 @@ void unload_plugin(void *handle)
  */
 Plugin* plugin_init(const char *filename, PlatformServices *svc)
 {
-    Plugin *plugin = svc->calloc(1, sizeof(Plugin));
+    platform_init(svc);
+    Plugin *plugin = platform_calloc(1, sizeof(Plugin));
     if(plugin == NULL)  goto err0;
 
     if(!load_plugin(filename, plugin))
     {
-        svc->log(7, "load err\n");
+        platform_log(PLATFORM_LOG_FATAL, "load err\n");
         goto err1;
     }
 
     plugin->filename = filename;
-    plugin->svc = svc;
     plugin->api->init(svc);
     plugin->inited = true;
 
@@ -203,7 +201,7 @@ void plugin_render(Plugin *plugin)
  */
 void plugin_update(Plugin *plugin)
 {
-    int key = plugin->svc->get_key_pressed();
+    int key = platform_get_key_pressed();
 
     if (key != 82) {
         key = plugin->api->key_map(key);
@@ -215,13 +213,13 @@ void plugin_update(Plugin *plugin)
         unload_plugin(plugin->handle);
 
         if (!load_plugin(plugin->filename, plugin)) {
-            plugin->svc->log(7, "plugin %s reload err!!\n", plugin->filename);
+            platform_log(PLATFORM_LOG_FATAL, "plugin %s reload err!!\n", plugin->filename);
             // TODO 插件加载错误处理
             exit(0);
         }
 
         if (!plugin->api->post_reload(plugin->pri)) {
-            plugin->svc->log(7, "plugin %s reload err!!\n", plugin->filename);
+            platform_log(PLATFORM_LOG_FATAL, "plugin %s reload err!!\n", plugin->filename);
             // TODO 数据加载错误处理
             exit(0);
         }
@@ -240,5 +238,5 @@ void plugin_exit(Plugin *plugin)
     assert(plugin->inited);
     plugin->api->exit();
     unload_plugin(plugin->handle);
-    plugin->svc->free(plugin);
+    platform_free(plugin);
 }

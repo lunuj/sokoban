@@ -16,6 +16,7 @@
 #include "ui/game/menu.h"
 
 #include "plugin/plugin.h"
+#include "platform/platform_wrapper.h"
 
 /**
  * @brief 插件私有数据（场景管理器）
@@ -66,10 +67,10 @@ void scene_set_current(int index)
 // TODO 子场景下函数调用，资源申请问题
 void scene_init(PlatformServices *service)
 {
-    pri = service->calloc(1, sizeof(PluginPri));
+    platform_init(service);
+    pri = platform_calloc(1, sizeof(PluginPri));
     pri->magic = 0xdeadbeef;
     pri->verion = version_get_current();
-    pri->svc = service;
 
     // TODO 场景创建问题，不希望scene管理子场景，而是只提供一个通用框架
     SceneOps ops = title_get_ops();
@@ -174,7 +175,7 @@ void scene_update(int key)
     }
 
     if (scene->end)
-        pri->svc->window_set_close();
+        platform_window_set_close();
     else
         scene->ops.update(scene, key);
 }
@@ -212,7 +213,7 @@ void scene_exit()
     for (int i = 0; i < SCENE_MAX; i++) {
         pri->scene_list[i].ops.exit(pri->scene_list + i);
     }
-    pri->svc->free(pri);
+    platform_free(pri);
 }
 
 /**
@@ -257,8 +258,8 @@ bool scene_post_reload(PluginPri *plugin)
 {
     pri = plugin;
     Version v = version_get_current();
-    pri->svc->log(7, "current version: %s\n", version_get_string(&v));
-    pri->svc->log(7, "plugin version: %s\n", version_get_string(&pri->verion));
+    platform_log(PLATFORM_LOG_FATAL, "current version: %s\n", version_get_string(&v));
+    platform_log(PLATFORM_LOG_FATAL, "plugin version: %s\n", version_get_string(&pri->verion));
     return version_is_compatible(&v, &pri->verion);
 }
 

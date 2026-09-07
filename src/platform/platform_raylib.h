@@ -4,11 +4,14 @@
  * @details 基于raylib库提供窗口管理、输入处理和系统日志等平台服务
  */
 
+#pragma once
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "platform.h"
+#include "platform/platform.h"
+#include "platform/platform_services.h"
 
 #include "raylib/raylib.h"
 
@@ -75,19 +78,6 @@ void window_set_close(void)
     should_close = true;
 }
 
-/**
- * @brief 获取窗口信息
- * @return 包含FPS、宽度和高度的WindowInfo结构体
- */
-WindowInfo get_window_info(void)
-{
-    return (WindowInfo) {
-        .fps = GetFPS(),
-        .width = GetScreenWidth(),
-        .height = GetScreenHeight(),
-    };
-}
-
 #pragma endregion
 
 #pragma region "input"
@@ -112,7 +102,7 @@ int get_key_pressed(void)
  * @param text 格式化字符串
  * @param ... 可变参数
  */
-void logger(int level, const char *text, ...)
+void logger(PlatformLogLevel level, const char *text, ...)
 {
     char s[128];
     va_list ap;
@@ -141,7 +131,6 @@ void set_log_level(int level)
  */
 PlatformServices* get_platform_services(){
     static PlatformServices svc = {
-        .get_window_info = get_window_info,
         .window_set_close = window_set_close,
 
         .malloc = malloc,
