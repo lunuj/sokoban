@@ -5,34 +5,37 @@
 
 #include "plugin/plugin.h"
 
-Plugin *box;
+Plugin* box;
 
 int main()
 {
     int key = 0;
     int ret = 0;
 
-    set_log_level(4);
-    logger(4, "game start!!\n");
+    platform_set_log_level(LOG_INFO);
+    platform_log(LOG_INFO, "game start!!");
 
-    init_window(600, 400, VERSION_STR, 0);
+    platform_init_window(VERSION_STR, 600, 400, 0);
 
-    box = plugin_init("output/libplug.so", get_platform_services());
-    if (box == NULL) goto err;
+    box = plugin_init("output/libplug.so");
+    if (box == NULL)
+        goto err;
 
-    printf("filename: %s\n", plugin_get_filename(box));
-    printf("plugin name: %s\n", plugin_get_name(box));
-    const Version *version = plugin_get_version(box);
-    printf("version: %s\n", version_get_string(version));
+    platform_log(LOG_INFO, "filename: %s", plugin_get_filename(box));
+    platform_log(LOG_INFO, "plugin name: %s", plugin_get_name(box));
+    const Version* version = plugin_get_version(box);
+    platform_log(LOG_INFO, "version: %s", version_get_string(version));
 
-    while (!window_should_close()) {
+    while (!platform_get_window_state())
+    {
         plugin_render(box);
         plugin_update(box);
     }
 
     plugin_exit(box);
 
-    close_window();
+    platform_close_window();
+    platform_log(LOG_INFO, "game exit!!");
 err:
     return 0;
 }

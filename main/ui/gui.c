@@ -1,18 +1,22 @@
 #include "platform/platform.h"
-#include "scene/scene.h"
+#include "plugin/plugin_api.h"
+#include "scene/scene_manager.h"
+
+extern PluginApi PLUGIN_API_NAME;
 
 int main()
 {
-    init_window(600, 400, "test", 0);
+    platform_init_window("test", 600, 400, 0);
 
-    scene_init(get_platform_services());
-    while (!window_should_close()) {
-        scene_render();
-        scene_update(scene_key_map(get_key_pressed()));
+    plugin_api.init(platform_get_api());
+    while (!platform_get_window_state())
+    {
+        plugin_api.render();
+        plugin_api.update(platform_get_key_pressed());
     }
-    scene_exit();
+    plugin_api.exit();
 
-    close_window();
+    platform_close_window();
 
     return 0;
 }

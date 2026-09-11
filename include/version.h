@@ -17,14 +17,17 @@
 #define VERSION_STRINGIFY_HELPER(x) #x
 #define VERSION_STRINGIFY(x) VERSION_STRINGIFY_HELPER(x)
 
-#define VERSION (Version) { \
-    .major = VERSION_MAJOR, \
-    .minor = VERSION_MINOR, \
-    .patch = VERSION_PATCH, \
-    .prerelease = VERSION_STRINGIFY(VERSION_PRERELEASE), \
-    .build = VERSION_STRINGIFY(VERSION_BUILD), \
-}
-#define VERSION_STR VERSION_STRINGIFY(VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH-VERSION_PRERELEASE+VERSION_BUILD)
+#define VERSION                                                                 \
+    (Version)                                                                   \
+    {                                                                           \
+        .major = VERSION_MAJOR, .minor = VERSION_MINOR, .patch = VERSION_PATCH, \
+        .prerelease = VERSION_STRINGIFY(VERSION_PRERELEASE),                    \
+        .build = VERSION_STRINGIFY(VERSION_BUILD),                              \
+    }
+#define VERSION_STR                                                                    \
+    VERSION_STRINGIFY(                                                                 \
+        VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH - VERSION_PRERELEASE + VERSION_BUILD \
+    )
 
 typedef struct Version
 {
@@ -35,7 +38,7 @@ typedef struct Version
     char build[32];      /* 如 "20260830" */
 } Version;
 
-static inline const char *version_get_string(const Version *version)
+static inline const char* version_get_string(const Version* version)
 {
     static char buffer[128];
 
@@ -65,7 +68,7 @@ static inline Version version_get_current(void)
 }
 
 /* 将字符串转为小写（辅助函数） */
-static inline void str_tolower(char *dst, const char *src, size_t n)
+static inline void str_tolower(char* dst, const char* src, size_t n)
 {
     size_t i;
     for (i = 0; i < n - 1 && src[i] != '\0'; i++)
@@ -75,9 +78,9 @@ static inline void str_tolower(char *dst, const char *src, size_t n)
     dst[i] = '\0';
 }
 
-/* 比较两个预发布标识符（如 "alpha" vs "beta"） 
+/* 比较两个预发布标识符（如 "alpha" vs "beta"）
    返回值: 1 表示 a > b, -1 表示 a < b, 0 表示相等 */
-static inline int compare_prerelease_identifiers(const char *a, const char *b)
+static inline int compare_prerelease_identifiers(const char* a, const char* b)
 {
     char a_lower[64], b_lower[64];
     str_tolower(a_lower, a, sizeof(a_lower));
@@ -87,7 +90,7 @@ static inline int compare_prerelease_identifiers(const char *a, const char *b)
 
 /* 主版本比较函数
    返回值: 1 表示 v1 > v2, -1 表示 v1 < v2, 0 表示相等 */
-static inline int version_compare(const Version *v1, const Version *v2)
+static inline int version_compare(const Version* v1, const Version* v2)
 {
     /* 1. 比较数字部分 (major, minor, patch) */
     if (v1->major != v2->major)
@@ -114,7 +117,7 @@ static inline int version_compare(const Version *v1, const Version *v2)
 }
 
 /* 检查版本是否兼容 (v1 是否兼容 v2, 即主版本号相同且v1 >= v2) */
-static inline int version_is_compatible(const Version *v1, const Version *v2)
+static inline int version_is_compatible(const Version* v1, const Version* v2)
 {
     if (v1->major != v2->major)
         return 0; /* 主版本不同，不兼容 */

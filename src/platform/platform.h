@@ -1,72 +1,31 @@
-/**
- * @file platform.h
- * @brief 平台服务模块头文件
- * @details 提供窗口管理、输入处理、日志记录和平台服务接口
- */
-
 #pragma once
-#include <stdint.h>
 
-#include "platform/platform_def.h"
+/* 本文件由 gen_from_impl_h.py 自动生成, 请勿手动修改 */
 
-/**
- * @brief 初始化窗口
- * @param width 窗口宽度
- * @param height 窗口高度
- * @param title 窗口标题
- * @param flags 窗口配置标志
- */
-void init_window(int width, int height, const char * title, int flags);
+#include <stdio.h>
+#include <stdlib.h>
+#include "raylib/raylib.h"
 
-/**
- * @brief 关闭窗口
- */
-void close_window(void);
+bool platform_init_window(const char* title, int width, int height, int flags);
+void platform_close_window(void);
+void platform_set_window_close(void);
+bool platform_get_window_state(void);
+int platform_get_window_width(void);
+int platform_get_window_height(void);
+int platform_get_key_pressed(void);
+void platform_begin_drawing(void);
+void platform_end_drawing(void);
+void platform_clear_background(Color color);
+Texture platform_load_texture(const char* filename);
+void platform_unload_texture(Texture texture);
+void platform_draw_texture(Texture texture, int posX, int posY, Color tint);
+void platform_draw_texture_pro(Texture texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
+void platform_draw_rectangle(int posX, int posY, int width, int height, Color color);
+void platform_draw_text(const char* text, int posX, int posY, int font_size, Color color);
+void platform_log(int level, const char* fmt, ...);
+void platform_set_log_level(int level);
+void* platform_calloc(size_t count, size_t size);
+void platform_free(void* ptr);
 
-/**
- * @brief 检查窗口是否就绪
- * @return 窗口已就绪返回true，否则返回false
- */
-bool is_window_ready(void);
-
-/**
- * @brief 检查窗口是否应该关闭
- * @return 窗口应关闭返回true，否则返回false
- */
-bool window_should_close(void);
-
-/**
- * @brief 设置窗口关闭标志
- */
-void window_set_close(void);
-
-/**
- * @brief 获取按下的按键
- * @return 按键码，无按键时返回0
- */
-int get_key_pressed(void);
-
-/**
- * @brief 日志记录函数
- * @param level 日志级别
- * @param text 格式化字符串
- * @param ... 可变参数
- */
-void logger(PlatformLogLevel level, const char *text, ...);
-
-/**
- * @brief 设置日志级别
- * @param level 日志级别
- */
-void set_log_level(int level);
-
-
-#pragma region "plugin"
-
-/**
- * @brief 获取平台服务接口指针
- * @return PlatformServices结构体指针（单例）
- */
-PlatformServices *get_platform_services();
-
-#pragma endregion
+typedef struct PlatformApi PlatformApi;
+PlatformApi* platform_get_api(void);

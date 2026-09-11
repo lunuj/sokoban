@@ -1,37 +1,16 @@
-/**
- * @file platform.c
- * @brief 平台服务实现模块
- * @details 基于raylib库提供窗口管理、输入处理和系统日志等平台服务
- */
-
 #pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
-
-#include "platform/platform.h"
-#include "platform/platform_services.h"
-
 #include "raylib/raylib.h"
 
 #pragma region "window"
+static bool window_should_close = false;
 
-/** @brief 窗口关闭标志 */
-static bool should_close = false;
-
-/**
- * @brief 初始化窗口
- * @param width 窗口宽度
- * @param height 窗口高度
- * @param title 窗口标题
- * @param flags 窗口配置标志
- * @note 如果窗口已就绪则直接返回
- */
-void init_window(int width, int height, const char* title, int flags)
+static inline bool impl_init_window(const char* title, int width, int height, int flags)
 {
-    if(is_window_ready())
-        return;
+    if (IsWindowReady())
+        return false;
     // FLAG_WINDOW_UNDECORATED
     // FLAG_WINDOW_TRANSPARENT
     // FLAG_WINDOW_HIGHDPI
@@ -39,110 +18,121 @@ void init_window(int width, int height, const char* title, int flags)
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT | flags);
     InitWindow(width, height, title);
     SetExitKey(KEY_NULL);
+    return true;
 }
 
-/**
- * @brief 关闭窗口
- * @note 如果窗口未就绪则直接返回
- */
-void close_window(void)
+static inline void impl_close_window()
 {
-    if(is_window_ready())
-        return;
     CloseWindow();
 }
 
-/**
- * @brief 检查窗口是否就绪
- * @return 窗口已就绪返回true，否则返回false
- */
-bool is_window_ready(void)
+static inline void impl_set_window_close()
 {
-    return IsWindowReady();
+    window_should_close = true;
 }
 
-/**
- * @brief 检查窗口是否应该关闭
- * @return 窗口应关闭返回true，否则返回false
- */
-bool window_should_close(void)
+static inline bool impl_get_window_state()
 {
-    return WindowShouldClose() | should_close;
+    return window_should_close | WindowShouldClose();
 }
 
-/**
- * @brief 设置窗口关闭标志
- */
-void window_set_close(void)
+static inline int impl_get_window_width()
 {
-    should_close = true;
+    return GetScreenWidth();
+}
+
+static inline int impl_get_window_height()
+{
+    return GetScreenHeight();
 }
 
 #pragma endregion
 
 #pragma region "input"
 
-/**
- * @brief 获取按下的按键
- * @return 按键码，无按键时返回0
- */
-int get_key_pressed(void)
+static inline int impl_get_key_pressed()
 {
     return GetKeyPressed();
 }
 
 #pragma endregion
 
+#pragma region "render"
 
-#pragma region "sys"
-
-/**
- * @brief 日志记录函数
- * @param level 日志级别
- * @param text 格式化字符串
- * @param ... 可变参数
- */
-void logger(PlatformLogLevel level, const char *text, ...)
+static inline void impl_begin_drawing()
 {
-    char s[128];
-    va_list ap;
-
-    va_start(ap, text);
-    vsnprintf(s, sizeof(s), text, ap);
-    va_end(ap);
-    TraceLog(level, s);
+    BeginDrawing();
 }
 
-/**
- * @brief 设置日志级别
- * @param level 日志级别
- */
-void set_log_level(int level)
+static inline void impl_end_drawing()
 {
-    SetTraceLogLevel(level);
+    EndDrawing();
+}
+
+static inline void impl_clear_background(Color color)
+{
+    ClearBackground(color);
+}
+
+static inline Texture impl_load_texture(const char* filename)
+{
+    return LoadTexture(filename);
+}
+
+static inline void impl_unload_texture(Texture texture)
+{
+    UnloadTexture(texture);
+}
+
+static inline void impl_draw_texture(Texture texture, int posX, int posY, Color tint)
+{
+    DrawTexture(texture, posX, posY, tint);
+}
+
+static inline void impl_draw_texture_pro(
+    Texture texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint
+)
+{
+    DrawTexturePro(texture, source, dest, origin, rotation, tint);
+}
+
+static inline void impl_draw_rectangle(int posX, int posY, int width, int height, Color color)
+{
+    DrawRectangle(posX, posY, width, height, color);
+}
+
+static inline void impl_draw_text(const char* text, int posX, int posY, int font_size, Color color)
+{
+    DrawText(text, posX, posY, font_size, color);
 }
 
 #pragma endregion
 
-/**
- * @brief 获取平台服务接口指针
- * @return PlatformServices结构体指针（单例）
- * @details 提供窗口、内存、输入和日志等服务的函数指针
- */
-PlatformServices* get_platform_services(){
-    static PlatformServices svc = {
-        .window_set_close = window_set_close,
+#pragma region "log"
 
-        .malloc = malloc,
-        .calloc = calloc,
-        .realloc = realloc,
-        .free = free,
-
-        .get_key_pressed = get_key_pressed,
-
-        .log = logger,
-        .set_log_level = set_log_level,
-    };
-
-    return &svc;
+static inline void impl_log(int level, const char* fmt, ...)
+{
+    printf("%d %s\n", level, fmt);
 }
+
+static inline void impl_set_log_level(int level)
+{
+    (void)level;
+    SetTraceLogLevel(LOG_FATAL);
+}
+
+#pragma endregion
+
+#pragma region "system"
+
+static inline void* impl_calloc(size_t count, size_t size)
+{
+    return calloc(count, size);
+}
+
+static inline void impl_free(void* ptr)
+{
+    return free(ptr);
+}
+
+#pragma endregion

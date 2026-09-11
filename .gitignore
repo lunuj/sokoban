@@ -1,5 +1,6 @@
-.vscode/
-reference/
-output/
-res/
-src/version_auto.h
+/.vscode/
+/reference/
+/output/
+/res/
+/src/version_auto.h
+/tool/

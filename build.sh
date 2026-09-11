@@ -170,6 +170,7 @@ case "$cmd" in
         ;;
     my)
         clear
+        make -C src/platform
         ./build.sh dynamic
         ./build.sh run main
         ;;
