@@ -7,8 +7,9 @@
 #include <stdlib.h>
 #include "menu.h"
 
-#include "raylib/raylib.h"
-#include "scene/scene.h"
+#include "../../sokoban.h"
+
+#include "scene/scene_manager.h"
 
 /** @brief 菜单选项数量 */
 #define MAX_NUM 4
@@ -19,14 +20,14 @@
  */
 enum MenuContext
 {
-    CONTINUE,       /**< 继续游戏 */
-    RESUME,         /**< 重置游戏 */
-    BACK_TO_HOME,   /**< 返回主页 */
-    EXIT,           /**< 退出游戏 */
+    CONTINUE,     /**< 继续游戏 */
+    RESUME,       /**< 重置游戏 */
+    BACK_TO_HOME, /**< 返回主页 */
+    EXIT,         /**< 退出游戏 */
 };
 
 /** @brief 菜单文本数组 */
-char *menu_text[MAX_NUM] = {
+char* menu_text[MAX_NUM] = {
     "continue game",
     "restore game",
     "back to home",
@@ -38,8 +39,8 @@ char *menu_text[MAX_NUM] = {
  */
 struct MenuPri
 {
-    int index;      /**< 当前选中的菜单项索引 */
-    char **text;    /**< 菜单文本数组 */
+    int index;   /**< 当前选中的菜单项索引 */
+    char** text; /**< 菜单文本数组 */
 };
 
 /**
@@ -47,13 +48,13 @@ struct MenuPri
  * @param scene 场景指针
  * @details 初始化菜单状态
  */
-static void menu_init(Scene *scene)
+static void menu_init(Scene* scene)
 {
-    scene->end = false;
-    scene->ops = menu_get_ops();
+    scene->status = false;
+    scene->ops = &menu_ops;
     scene->pri = calloc(1, sizeof(struct MenuPri));
 
-    struct MenuPri *pri = (struct MenuPri *)scene->pri;
+    struct MenuPri* pri = (struct MenuPri*)scene->pri;
     pri->index = 0;
     pri->text = menu_text;
 }
@@ -63,9 +64,9 @@ static void menu_init(Scene *scene)
  * @param scene 场景指针
  * @details 将选中索引重置为0
  */
-static void menu_reset(Scene *scene)
+static void menu_reset(Scene* scene)
 {
-    struct MenuPri *pri = (struct MenuPri *)scene->pri;
+    struct MenuPri* pri = (struct MenuPri*)scene->pri;
 
     pri->index = 0;
 }
@@ -75,20 +76,20 @@ static void menu_reset(Scene *scene)
  * @param scene 场景指针
  * @details 绘制半透明背景和菜单选项
  */
-static void menu_render(Scene *scene)
+static void menu_render(Scene* scene)
 {
-    struct MenuPri *pri = (struct MenuPri *)scene->pri;
+    struct MenuPri* pri = (struct MenuPri*)scene->pri;
 
-    int screen_width = GetScreenWidth();
-    int screen_height = GetScreenHeight();
+    int screen_width = plugin_get_window_width();
+    int screen_height = plugin_get_window_height();
 
-    DrawRectangle(0, 0, screen_width, screen_height, (Color){0, 0, 0, 180});
+    plugin_draw_rectangle(0, 0, screen_width, screen_height, (Color){0, 0, 0, 180});
     for (int i = 0; i < MAX_NUM; i++)
     {
         if (i == pri->index)
-            DrawText(pri->text[i], 0, i * 20, 14, YELLOW);
+            plugin_draw_text(pri->text[i], 0, i * 20, 14, YELLOW);
         else
-            DrawText(pri->text[i], 0, i * 20, 14, RED);
+            plugin_draw_text(pri->text[i], 0, i * 20, 14, RED);
     }
 }
 
@@ -98,11 +99,11 @@ static void menu_render(Scene *scene)
  * @param c 操作码
  * @details 处理菜单导航和选项选择
  */
-static void menu_update(Scene *scene, int c)
+static void menu_update(Scene* scene, int c)
 {
-    struct MenuPri *pri = (struct MenuPri *)scene->pri;
+    struct MenuPri* pri = (struct MenuPri*)scene->pri;
 
-    int *index = &pri->index;
+    int* index = &pri->index;
     switch (c)
     {
     case OPTION_MOV_UP:
@@ -117,29 +118,25 @@ static void menu_update(Scene *scene, int c)
         switch (*index)
         {
         case CONTINUE:
-            scene->end = true;
+            scene_manager_clear_overlay(scene->mgr);
             break;
         case RESUME:
-            scene_reset(GAME);
-            scene->end = true;
+            scene_manager_reset(scene->mgr, GAME);
+            scene_manager_clear_overlay(scene->mgr);
             break;
         case BACK_TO_HOME:
-            scene_reset(GAME_END);
-            scene_set_overlay(GAME, GAME_END);
-            scene_update(OPTION_LOSE);
-            scene->end = true;
+            scene_manager_reset(scene->mgr, GAME_END);
+            scene_manager_set_overlay(scene->mgr, GAME_END);
             break;
         case EXIT:
-            scene_set_current(TITLE);
-            scene_set_status(TITLE, true);
-            scene->end = true;
+            scene_manager_request(scene->mgr, scene_action_quit());
             break;
         default:
             break;
         }
         break;
     case OPTION_BACK:
-        scene->end = true;
+        scene_manager_clear_overlay(scene->mgr);
         break;
     default:
         break;
@@ -151,24 +148,16 @@ static void menu_update(Scene *scene, int c)
  * @param scene 场景指针
  * @details 无资源需要释放
  */
-static void menu_exit(Scene *scene) {
+static void menu_exit(Scene* scene)
+{
     (void)scene;
 }
 
 /** @brief 菜单界面操作函数集 */
-static SceneOps menu = {
+const SceneOps menu_ops = {
     .init = menu_init,
     .reset = menu_reset,
     .render = menu_render,
     .update = menu_update,
     .exit = menu_exit,
 };
-
-/**
- * @brief 获取菜单界面操作函数集
- * @return SceneOps结构体
- */
-SceneOps menu_get_ops()
-{
-    return menu;
-}

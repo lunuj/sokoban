@@ -7,8 +7,9 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include "core.h"
-#include "ui/cli.h"
+
+#include "../cli.h"
+#include "../core.h"
 
 /**
  * @brief 从文本文件加载地图
@@ -17,9 +18,9 @@
  * @return 成功返回0，失败返回-1
  * @details 从文本文件读取地图数据，自动识别地图宽高
  */
-int load_map_from_txt(const char *filename, Map *map)
+int load_map_from_txt(const char* filename, Map* map)
 {
-    FILE *fp = fopen(filename, "r");
+    FILE* fp = fopen(filename, "r");
 
     if (fp == NULL)
     {
@@ -65,9 +66,9 @@ int load_map_from_txt(const char *filename, Map *map)
  * @param map 地图结构体指针
  * @return 成功返回0，失败返回-1
  */
-int load_map_from_bin(const char *filename, Map *map)
+int load_map_from_bin(const char* filename, Map* map)
 {
-    FILE *fp = fopen(filename, "rb");
+    FILE* fp = fopen(filename, "rb");
 
     if (fp == NULL)
     {
@@ -88,10 +89,10 @@ int load_map_from_bin(const char *filename, Map *map)
  * @return 成功返回0，失败返回-1
  * @details 将地图数据以字符形式写入文本文件
  */
-int save_map_to_txt(const char *filename, Map *map)
+int save_map_to_txt(const char* filename, Map* map)
 {
     char ch = 0;
-    FILE *fp = fopen(filename, "w+");
+    FILE* fp = fopen(filename, "w+");
 
     if (fp == NULL)
     {
@@ -118,9 +119,9 @@ int save_map_to_txt(const char *filename, Map *map)
  * @param map 地图结构体指针
  * @return 成功返回0，失败返回-1
  */
-int save_map_to_bin(const char *filename, Map *map)
+int save_map_to_bin(const char* filename, Map* map)
 {
-    FILE *fp = fopen(filename, "wb+");
+    FILE* fp = fopen(filename, "wb+");
 
     if (fp == NULL)
     {

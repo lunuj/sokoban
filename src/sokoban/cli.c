@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include "core.h"
-#include "scene/scene.h"
+#include "scene/scene_pri.h"
 
 /** @brief 障碍物字符 */
 #define BLOCK '#'
@@ -24,8 +24,8 @@
 /** @brief 箱子在目标点上字符 */
 #define BOX_ON_TARGET 'O'
 
-char c = 0;             /**< 临时字符变量 */
-char line[128];         /**< 输入行缓冲区 */
+char c = 0;     /**< 临时字符变量 */
+char line[128]; /**< 输入行缓冲区 */
 
 /**
  * @brief 将地图类型转换为显示字符
@@ -35,7 +35,8 @@ char line[128];         /**< 输入行缓冲区 */
 int map_to_cli(int maptype)
 {
     int ch = 0;
-    switch (maptype) {
+    switch (maptype)
+    {
     case MAP_BLOCK:
         ch = BLOCK;
         break;
@@ -73,7 +74,8 @@ int map_to_cli(int maptype)
 int cli_to_map(int ch)
 {
     int ret = 0;
-    switch (ch) {
+    switch (ch)
+    {
     case BLOCK:
         ret = MAP_BLOCK;
         break;
@@ -107,10 +109,12 @@ int cli_to_map(int ch)
  * @brief 在命令行显示地图
  * @param map 地图结构体指针
  */
-void cli_show(Map *map)
+void cli_show(Map* map)
 {
-    for (int i = 0; i < map->h; i++) {
-        for (int j = 0; j < map->w; j++) {
+    for (int i = 0; i < map->h; i++)
+    {
+        for (int j = 0; j < map->w; j++)
+        {
             printf("%c", map_to_cli(map->map[i * map->w + j]));
         }
         printf("\n");
@@ -127,7 +131,8 @@ int cli_get()
     int ret = CMD_NONE;
 
     fgets(line, sizeof(line), stdin);
-    switch (line[0]) {
+    switch (line[0])
+    {
     case 'q':
         ret = CMD_BACK;
         break;

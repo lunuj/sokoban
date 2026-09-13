@@ -4,43 +4,41 @@
 #include "core.h"
 #include "tool/map.h"
 
-Map map;
-
-static inline void map_set(Map *map, int pos, int maptype)
+static inline void map_set(Map* map, int pos, int maptype)
 {
     assert(pos < map->w * map->h);
     map->map[pos] |= maptype;
 }
 
-static inline int map_get(Map *map, int pos)
+static inline int map_get(Map* map, int pos)
 {
     assert(pos < map->w * map->h);
     return map->map[pos];
 }
 
-static inline void map_clear(Map *map, int pos, int maptype)
+static inline void map_clear(Map* map, int pos, int maptype)
 {
     assert(pos < map->w * map->h);
     map->map[pos] &= ~maptype;
 }
 
-static inline bool map_is(Map *map, int pos, int maptype)
+static inline bool map_is(Map* map, int pos, int maptype)
 {
     assert(pos < map->w * map->h);
     return (map->map[pos] & maptype) == maptype;
 }
 
-static inline int get_map_width(Map *map)
+static inline int get_map_width(Map* map)
 {
     return map->w;
 }
 
-static inline int get_map_height(Map *map)
+static inline int get_map_height(Map* map)
 {
     return map->h;
 }
 
-int find_player(Map *map)
+int find_player(Map* map)
 {
     int w = get_map_width(map);
     int h = get_map_height(map);
@@ -59,7 +57,7 @@ int find_player(Map *map)
     return -1;
 }
 
-void records_add(Map *map, int pos_f, int direct, int step, int pos_t)
+void records_add(Map* map, int pos_f, int direct, int step, int pos_t)
 {
     assert(map->record_count < RECORD_SIZE && "record too big!!");
     if (map->is_recording)
@@ -72,7 +70,7 @@ void records_add(Map *map, int pos_f, int direct, int step, int pos_t)
     }
 }
 
-void mov(Map *map, int pos_f, int direct, int step)
+void mov(Map* map, int pos_f, int direct, int step)
 {
     int w = get_map_width(map);
     int h = get_map_height(map);
@@ -101,8 +99,8 @@ void mov(Map *map, int pos_f, int direct, int step)
         return;
     }
 
-    char *f = map->map + pos_f;
-    char *t = map->map + pos_t;
+    char* f = map->map + pos_f;
+    char* t = map->map + pos_t;
 
     if (map_is(map, pos_t, MAP_BLOCK))
     {
@@ -129,7 +127,7 @@ void mov(Map *map, int pos_f, int direct, int step)
     records_add(map, pos_f, direct, step, pos_t);
 }
 
-void records_undo(Map *map)
+void records_undo(Map* map)
 {
     if (map->record_count > 0)
     {
@@ -160,7 +158,7 @@ void records_undo(Map *map)
     }
 }
 
-int update(Map *map, int c)
+int update(Map* map, int c)
 {
     int pos = find_player(map);
 
@@ -184,7 +182,7 @@ int update(Map *map, int c)
     return 0;
 }
 
-bool is_win(Map *map)
+bool is_win(Map* map)
 {
     for (int i = 0; i < get_map_height(map); i++)
     {
@@ -201,7 +199,7 @@ bool is_win(Map *map)
 
 #define MAP_RES "res/map/map%02d.txt"
 
-void load_map(Map *map, int index)
+void load_map(Map* map, int index)
 {
     (void)index;
     char str[32];

@@ -24,7 +24,7 @@ int cli_to_map(int ch);
  * @brief 在命令行显示地图
  * @param map 地图结构体指针
  */
-void cli_show(Map *map);
+void cli_show(Map* map);
 
 /**
  * @brief 从命令行获取用户输入

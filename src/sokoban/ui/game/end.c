@@ -4,21 +4,19 @@
  * @details 显示游戏胜利或失败的结果界面
  */
 
-#include <stdlib.h>
 #include "end.h"
 
-#include "raylib/raylib.h"
-#include "scene/scene.h"
+#include "../../sokoban.h"
 
-#include "core.h"
+#include "scene/scene_manager.h"
 
 /** @brief 结束界面选项数量 */
 #define MAX_NUM 2
 
 /** @brief 结束界面文本数组 */
-char *end_text[MAX_NUM] = {
-    "You Win !!",   /**< 胜利文本 */
-    "You Lose !!",  /**< 失败文本 */
+char* end_text[MAX_NUM] = {
+    "You Win !!",  /**< 胜利文本 */
+    "You Lose !!", /**< 失败文本 */
 };
 
 /**
@@ -26,8 +24,8 @@ char *end_text[MAX_NUM] = {
  */
 struct EndPri
 {
-    int index;      /**< 当前显示的结果索引（0=胜利，1=失败） */
-    char **text;    /**< 结束文本数组 */
+    int index;   /**< 当前显示的结果索引（0=胜利，1=失败） */
+    char** text; /**< 结束文本数组 */
 };
 
 /**
@@ -35,13 +33,13 @@ struct EndPri
  * @param scene 场景指针
  * @details 初始化结束界面状态
  */
-static void end_init(Scene *scene)
+static void end_init(Scene* scene)
 {
-    scene->end = false;
-    scene->ops = end_get_ops();
-    scene->pri = calloc(1, sizeof(struct EndPri));
+    scene->status = false;
+    scene->ops = &end_ops;
+    scene->pri = plugin_calloc(1, sizeof(struct EndPri));
 
-    struct EndPri *pri = (struct EndPri *)scene->pri;
+    struct EndPri* pri = (struct EndPri*)scene->pri;
     pri->index = 0;
     pri->text = end_text;
 }
@@ -51,9 +49,9 @@ static void end_init(Scene *scene)
  * @param scene 场景指针
  * @details 将结果索引重置为0（胜利）
  */
-static void end_reset(Scene *scene)
+static void end_reset(Scene* scene)
 {
-    struct EndPri *pri = (struct EndPri *)scene->pri;
+    struct EndPri* pri = (struct EndPri*)scene->pri;
 
     pri->index = 0;
 }
@@ -63,15 +61,15 @@ static void end_reset(Scene *scene)
  * @param scene 场景指针
  * @details 绘制半透明背景和结果文本
  */
-static void end_render(Scene *scene)
+static void end_render(Scene* scene)
 {
-    struct EndPri *pri = (struct EndPri *)scene->pri;
+    struct EndPri* pri = (struct EndPri*)scene->pri;
 
-    int screen_width = GetScreenWidth();
-    int screen_height = GetScreenHeight();
+    int screen_width = plugin_get_window_width();
+    int screen_height = plugin_get_window_height();
 
-    DrawRectangle(0, 0, screen_width, screen_height, (Color){0, 0, 0, 180});
-    DrawText(
+    plugin_draw_rectangle(0, 0, screen_width, screen_height, (Color){0, 0, 0, 180});
+    plugin_draw_text(
         pri->text[pri->index],
         screen_width / 2,
         screen_height / 2,
@@ -86,23 +84,17 @@ static void end_render(Scene *scene)
  * @param c 操作码
  * @details 根据操作码显示胜利或失败，任意按键返回标题界面
  */
-static void end_update(Scene *scene, int c)
+static void end_update(Scene* scene, int c)
 {
-    struct EndPri *pri = (struct EndPri *)scene->pri;
+    struct EndPri* pri = (struct EndPri*)scene->pri;
+    pri->index = sokoban_get_result();
 
     switch (c)
     {
-    case OPTION_WIN:
-        pri->index = 0;
-        break;
-    case OPTION_LOSE:
-        pri->index = 1;
-        break;
     case OPTION_NONE:
         break;
     default:
-        scene_set_current(TITLE);
-        scene->end = true;
+        scene_manager_replace(scene->mgr, TITLE);
         break;
     }
 }
@@ -112,24 +104,16 @@ static void end_update(Scene *scene, int c)
  * @param scene 场景指针
  * @details 无资源需要释放
  */
-static void end_exit(Scene *scene) {
+static void end_exit(Scene* scene)
+{
     (void)scene;
 }
 
 /** @brief 结束界面操作函数集 */
-static SceneOps end = {
+const SceneOps end_ops = {
     .init = end_init,
     .reset = end_reset,
     .render = end_render,
     .update = end_update,
     .exit = end_exit,
 };
-
-/**
- * @brief 获取结束界面操作函数集
- * @return SceneOps结构体
- */
-SceneOps end_get_ops()
-{
-    return end;
-}

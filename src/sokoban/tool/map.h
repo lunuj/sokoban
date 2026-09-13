@@ -5,7 +5,7 @@
  */
 
 #pragma once
-#include "core.h"
+#include "../core.h"
 
 /**
  * @brief 从文本文件加载地图
@@ -13,7 +13,7 @@
  * @param map 地图结构体指针
  * @return 成功返回0，失败返回-1
  */
-int load_map_from_txt(const char *filename, Map *map);
+int load_map_from_txt(const char* filename, Map* map);
 
 /**
  * @brief 从二进制文件加载地图
@@ -21,7 +21,7 @@ int load_map_from_txt(const char *filename, Map *map);
  * @param map 地图结构体指针
  * @return 成功返回0，失败返回-1
  */
-int load_map_from_bin(const char *filename, Map *map);
+int load_map_from_bin(const char* filename, Map* map);
 
 /**
  * @brief 将地图保存为文本文件
@@ -29,7 +29,7 @@ int load_map_from_bin(const char *filename, Map *map);
  * @param map 地图结构体指针
  * @return 成功返回0，失败返回-1
  */
-int save_map_to_txt(const char *filename, Map *map);
+int save_map_to_txt(const char* filename, Map* map);
 
 /**
  * @brief 将地图保存为二进制文件
@@ -37,4 +37,4 @@ int save_map_to_txt(const char *filename, Map *map);
  * @param map 地图结构体指针
  * @return 成功返回0，失败返回-1
  */
-int save_map_to_bin(const char *filename, Map *map);
+int save_map_to_bin(const char* filename, Map* map);

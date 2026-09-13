@@ -7,11 +7,10 @@
 #include <stdlib.h>
 #include "game.h"
 
-#include "core.h"
-#include "raylib/raylib.h"
-#include "scene/scene.h"
+#include "../../core.h"
+#include "../../sokoban.h"
 
-#include "menu.h"
+#include "scene/scene_manager.h"
 
 /** @brief 资源路径宏 */
 #define RES(str) "res/img/" #str ".png"
@@ -23,7 +22,7 @@
  */
 struct GamePri
 {
-    Map map;                    /**< 地图数据 */
+    Map* map;                   /**< 地图数据 */
     Texture2D map_textrue[MAX]; /**< 地图块纹理数组 */
 };
 
@@ -35,18 +34,18 @@ struct GamePri
  * @param y 屏幕Y坐标
  * @details 根据地图块类型叠加绘制对应的纹理
  */
-static void show_block(struct GamePri *pri, int block, int x, int y)
+static void show_block(struct GamePri* pri, int block, int x, int y)
 {
     if ((block & MAP_SPACE) == MAP_SPACE)
-        DrawTexture(pri->map_textrue[SPACE], x, y, WHITE);
+        plugin_draw_texture(pri->map_textrue[SPACE], x, y, WHITE);
     if ((block & MAP_TARGET) == MAP_TARGET)
-        DrawTexture(pri->map_textrue[TARGET], x, y, WHITE);
+        plugin_draw_texture(pri->map_textrue[TARGET], x, y, WHITE);
     if ((block & MAP_BLOCK) == MAP_BLOCK)
-        DrawTexture(pri->map_textrue[BLOCK], x, y, WHITE);
+        plugin_draw_texture(pri->map_textrue[BLOCK], x, y, WHITE);
     if ((block & MAP_PLAYER) == MAP_PLAYER)
-        DrawTexture(pri->map_textrue[PLAYER], x, y, WHITE);
+        plugin_draw_texture(pri->map_textrue[PLAYER], x, y, WHITE);
     if ((block & MAP_BOX) == MAP_BOX)
-        DrawTexture(pri->map_textrue[BOX], x, y, WHITE);
+        plugin_draw_texture(pri->map_textrue[BOX], x, y, WHITE);
 }
 
 /**
@@ -54,34 +53,35 @@ static void show_block(struct GamePri *pri, int block, int x, int y)
  * @param scene 场景指针
  * @details 加载地图和纹理资源
  */
-static void game_init(Scene *scene)
+static void game_init(Scene* scene)
 {
-    scene->end = false;
-    scene->ops = game_get_ops();
+    scene->status = false;
+    scene->ops = &game_ops;
     scene->pri = calloc(1, sizeof(struct GamePri));
 
-    struct GamePri *pri = (struct GamePri *)scene->pri;
+    struct GamePri* pri = (struct GamePri*)scene->pri;
 
-    load_map(&pri->map, 1);
-    pri->map.is_recording = true;
-    pri->map_textrue[BOX] = LoadTexture(RES(box));
-    pri->map_textrue[PLAYER] = LoadTexture(RES(player));
-    pri->map_textrue[SPACE] = LoadTexture(RES(space));
-    pri->map_textrue[TARGET] = LoadTexture(RES(target));
-    pri->map_textrue[BLOCK] = LoadTexture(RES(block));
+    pri->map = sokoban_get_map();
+    load_map(pri->map, sokoban_get_stage());
+    pri->map->is_recording = true;
+    pri->map_textrue[BOX] = plugin_load_texture(RES(box));
+    pri->map_textrue[PLAYER] = plugin_load_texture(RES(player));
+    pri->map_textrue[SPACE] = plugin_load_texture(RES(space));
+    pri->map_textrue[TARGET] = plugin_load_texture(RES(target));
+    pri->map_textrue[BLOCK] = plugin_load_texture(RES(block));
 }
 
 /**
  * @brief 游戏界面重置
  * @param scene 场景指针
- * @details 重新加载地图并重置录制状态
+ * @details 重新加载地图并重置录制状态s
  */
-static void game_reset(Scene *scene)
+static void game_reset(Scene* scene)
 {
-    struct GamePri *pri = (struct GamePri *)scene->pri;
+    struct GamePri* pri = (struct GamePri*)scene->pri;
 
-    load_map(&pri->map, 1);
-    pri->map.is_recording = true;
+    load_map(pri->map, sokoban_get_stage());
+    pri->map->is_recording = true;
 }
 
 /**
@@ -89,19 +89,18 @@ static void game_reset(Scene *scene)
  * @param scene 场景指针
  * @details 绘制所有地图块
  */
-static void game_render(Scene *scene)
+static void game_render(Scene* scene)
 {
-    struct GamePri *pri = (struct GamePri *)scene->pri;
+    struct GamePri* pri = (struct GamePri*)scene->pri;
 
-    int w = pri->map.w;
-    int h = pri->map.h;
+    int w = pri->map->w;
+    int h = pri->map->h;
 
-    ClearBackground(BLANK);
     for (int i = 0; i < w * h; i++)
     {
         int pos_x = (i % w) * MAP_BLOCK_SIZE;
         int pos_y = (i / w) * MAP_BLOCK_SIZE;
-        int block = pri->map.map[i];
+        int block = pri->map->map[i];
         show_block(pri, block, pos_x, pos_y);
     }
 }
@@ -149,26 +148,25 @@ static int key_to_command(int key)
  * @param c 操作码
  * @details 处理玩家输入，更新游戏状态，检查胜利条件
  */
-static void game_update(Scene *scene, int c)
+static void game_update(Scene* scene, int c)
 {
-    struct GamePri *pri = (struct GamePri *)scene->pri;
+    struct GamePri* pri = (struct GamePri*)scene->pri;
 
     switch (c)
     {
     case OPTION_BACK:
-        scene_reset(GAME_MENU);
-        scene_set_overlay(GAME, GAME_MENU);
+        scene_manager_reset(scene->mgr, GAME_MENU);
+        scene_manager_set_overlay(scene->mgr, GAME_MENU);
         break;
     default:
-        update(&pri->map, key_to_command(c));
+        update(pri->map, key_to_command(c));
         break;
     }
 
-    if (is_win(&pri->map))
+    if (is_win(pri->map))
     {
-        scene_set_overlay(GAME, GAME_END);
-        scene_set_status(GAME_END, false);
-        scene_update(OPTION_WIN);
+        sokoban_set_result(1);
+        scene_manager_set_overlay(scene->mgr, GAME_END);
     }
 }
 
@@ -177,31 +175,22 @@ static void game_update(Scene *scene, int c)
  * @param scene 场景指针
  * @details 卸载纹理并释放内存
  */
-static void game_exit(Scene *scene)
+static void game_exit(Scene* scene)
 {
-    struct GamePri *pri = (struct GamePri *)scene->pri;
+    struct GamePri* pri = (struct GamePri*)scene->pri;
     for (int i = 0; i < MAX; i++)
     {
-        UnloadTexture(pri->map_textrue[i]);
+        plugin_unload_texture(pri->map_textrue[i]);
     }
 
     free(pri);
 }
 
 /** @brief 游戏界面操作函数集 */
-static SceneOps game_ops = {
+const SceneOps game_ops = {
     .init = game_init,
     .reset = game_reset,
     .render = game_render,
     .update = game_update,
     .exit = game_exit
 };
-
-/**
- * @brief 获取游戏界面操作函数集
- * @return SceneOps结构体
- */
-SceneOps game_get_ops()
-{
-    return game_ops;
-}

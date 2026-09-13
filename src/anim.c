@@ -28,19 +28,19 @@ static Curve animation_get_curve(AnimationType type)
 
 // #define Lerp(from, to, w) ((w))
 
-static void animation_interpolator_position(AnimValue *target, float p, void *userdata)
+static void animation_interpolator_position(AnimValue* target, float p, void* userdata)
 {
     assert(target->type == ANIMATION_POSITION);
 
-    *(Vector2 *)userdata = (Vector2
+    *(Vector2*)userdata = (Vector2
     ){Lerp(target->from.position.x, target->to.position.x, p),
       Lerp(target->from.position.y, target->to.position.y, p)};
 }
 
-static void animation_interpolator_color(AnimValue *target, float p, void *userdata)
+static void animation_interpolator_color(AnimValue* target, float p, void* userdata)
 {
     assert(target->type == ANIMATION_COLOR);
-    Color *color = (Color *)userdata;
+    Color* color = (Color*)userdata;
     color->a = Lerp(target->from.color.a, target->to.color.a, p);
     color->r = Lerp(target->from.color.r, target->to.color.r, p);
     color->g = Lerp(target->from.color.g, target->to.color.g, p);
@@ -64,7 +64,7 @@ static Interpolator animation_get_interpolator(AnimationType type)
 
 #pragma region "Animation"
 
-void animation_update(Animation *anim, float dt)
+void animation_update(Animation* anim, float dt)
 {
     assert(anim);
 
@@ -84,13 +84,13 @@ void animation_update(Animation *anim, float dt)
     anim->interpolator(&anim->target, p, anim->userdata);
 }
 
-void animation_reset(Animation *anim)
+void animation_reset(Animation* anim)
 {
     assert(anim);
     anim->elapsed = 0;
 }
 
-void animation_init(Animation *anim, float duration, AnimValue target, void *userdata)
+void animation_init(Animation* anim, float duration, AnimValue target, void* userdata)
 {
     assert(anim);
     anim->elapsed = 0;
@@ -105,7 +105,7 @@ void animation_init(Animation *anim, float duration, AnimValue target, void *use
     // anim->isfinished = true;
 }
 
-bool animation_isfinished(Animation *anim)
+bool animation_isfinished(Animation* anim)
 {
     assert(anim);
 
@@ -116,34 +116,34 @@ bool animation_isfinished(Animation *anim)
 
 #pragma region "Anim Node"
 
-static inline void anim_animation_reset(Anim *node)
+static inline void anim_animation_reset(Anim* node)
 {
     assert(node);
-    animation_reset((Animation *)node->userdata);
+    animation_reset((Animation*)node->userdata);
 }
 
-static inline bool anim_animation_isfinished(Anim *node)
+static inline bool anim_animation_isfinished(Anim* node)
 {
     assert(node);
-    return animation_isfinished((Animation *)node->userdata);
+    return animation_isfinished((Animation*)node->userdata);
 }
 
-static inline void anim_animation_update(Anim *node, float dt)
+static inline void anim_animation_update(Anim* node, float dt)
 {
     assert(node);
-    animation_update((Animation *)node->userdata, dt);
+    animation_update((Animation*)node->userdata, dt);
     if (node->loop && anim_animation_isfinished(node))
     {
         anim_animation_reset(node);
     }
 }
 
-static inline void anim_sequence_reset(Anim *node)
+static inline void anim_sequence_reset(Anim* node)
 {
     assert(node);
     assert(node->userdata);
 
-    Sequence *s = (Sequence *)node->userdata;
+    Sequence* s = (Sequence*)node->userdata;
     for (int i = 0; i < s->count; i++)
     {
         Anim a = s->children[i];
@@ -154,13 +154,13 @@ static inline void anim_sequence_reset(Anim *node)
     }
 }
 
-static void anim_sequence_update(Anim *node, float dt)
+static void anim_sequence_update(Anim* node, float dt)
 {
     assert(node);
     assert(node->userdata);
     assert(node->ops->reset);
 
-    Sequence *s = (Sequence *)node->userdata;
+    Sequence* s = (Sequence*)node->userdata;
     for (int i = 0; i < s->count; i++)
     {
         Anim a = s->children[i];
@@ -180,12 +180,12 @@ static void anim_sequence_update(Anim *node, float dt)
     }
 }
 
-static bool anim_sequence_isfinished(Anim *node)
+static bool anim_sequence_isfinished(Anim* node)
 {
     assert(node);
     assert(node->userdata);
 
-    Sequence *s = (Sequence *)node->userdata;
+    Sequence* s = (Sequence*)node->userdata;
     for (int i = 0; i < s->count; i++)
     {
         Anim a = s->children[i];
@@ -201,12 +201,12 @@ static bool anim_sequence_isfinished(Anim *node)
     return true;
 }
 
-static inline void anim_parallel_reset(Anim *node)
+static inline void anim_parallel_reset(Anim* node)
 {
     assert(node);
     assert(node->userdata);
 
-    Parallel *s = (Parallel *)node->userdata;
+    Parallel* s = (Parallel*)node->userdata;
     for (int i = 0; i < s->count; i++)
     {
         Anim a = s->children[i];
@@ -217,13 +217,13 @@ static inline void anim_parallel_reset(Anim *node)
     }
 }
 
-static inline void anim_parallel_update(Anim *node, float dt)
+static inline void anim_parallel_update(Anim* node, float dt)
 {
     assert(node);
     assert(node->userdata);
     assert(node->ops->reset);
 
-    Parallel *p = (Parallel *)node->userdata;
+    Parallel* p = (Parallel*)node->userdata;
     for (int i = 0; i < p->count; i++)
     {
         Anim a = p->children[i];
@@ -242,12 +242,12 @@ static inline void anim_parallel_update(Anim *node, float dt)
     }
 }
 
-static bool anim_parallel_isfinished(Anim *node)
+static bool anim_parallel_isfinished(Anim* node)
 {
     assert(node);
     assert(node->userdata);
 
-    Parallel *p = (Parallel *)node->userdata;
+    Parallel* p = (Parallel*)node->userdata;
     for (int i = 0; i < p->count; i++)
     {
         Anim a = p->children[i];
@@ -269,7 +269,7 @@ static AnimOps ops[] = {
     {NULL, NULL, anim_parallel_reset, anim_parallel_update, anim_parallel_isfinished},
 };
 
-void anim_init(Anim *node, AnimType type, void *userdata)
+void anim_init(Anim* node, AnimType type, void* userdata)
 {
     assert(node);
     assert(type < sizeof(ops) / sizeof(ops[0]));
@@ -278,7 +278,7 @@ void anim_init(Anim *node, AnimType type, void *userdata)
     node->userdata = userdata;
 }
 
-void anim_update(Anim *node, float dt)
+void anim_update(Anim* node, float dt)
 {
     assert(node);
     assert(node->ops);
@@ -286,7 +286,7 @@ void anim_update(Anim *node, float dt)
     node->ops->update(node, dt);
 }
 
-void anim_reset(Anim *node)
+void anim_reset(Anim* node)
 {
     assert(node);
     assert(node->ops);

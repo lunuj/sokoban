@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdbool.h>
 #include <assert.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include "raylib/raylib.h"
 
@@ -13,13 +13,14 @@ typedef enum AnimType
     ANIM_LOOP,
 } AnimType;
 
-typedef enum{
+typedef enum
+{
     ANIM_IDLE,
     ANIM_RUNNING,
     ANIM_PAUSED,
     ANIM_FINISHED,
     ANIM_CANCELLED
-}AnimState;
+} AnimState;
 
 typedef enum AnimationType
 {
@@ -32,7 +33,9 @@ typedef enum AnimationType
 typedef struct
 {
     AnimationType type;
-    union {
+
+    union
+    {
         float scale;
         Vector2 position;
         Color color;
@@ -41,25 +44,28 @@ typedef struct
 } AnimValue;
 
 typedef float (*Curve)(float w);
-typedef void (*Interpolator)(AnimValue *target, float p, void *userdata);
+typedef void (*Interpolator)(AnimValue* target, float p, void* userdata);
 
 typedef struct Anim Anim;
+
 typedef struct AnimOps
 {
     void (*start)(Anim*);
     void (*pause)(Anim*);
     void (*reset)(Anim*);
-    void (*update)(Anim*,float);
+    void (*update)(Anim*, float);
     bool (*finished)(Anim*);
 } AnimOps;
 
-typedef struct {
-    Anim *children;
+typedef struct
+{
+    Anim* children;
     int count;
 } Sequence;
 
-typedef struct {
-    Anim *children;
+typedef struct
+{
+    Anim* children;
     int count;
 } Parallel;
 
@@ -72,20 +78,21 @@ typedef struct
     AnimValue target;
     Interpolator interpolator;
 
-    void *userdata;
+    void* userdata;
 } Animation;
 
-struct Anim {
+struct Anim
+{
     AnimType type;
     AnimState state;
-    AnimOps *ops;
+    AnimOps* ops;
     bool loop;
-    void *userdata;
+    void* userdata;
 };
 
-void anim_init(Anim *node, AnimType type, void *userdata);
-void anim_update(Anim *node, float dt);
-void anim_reset(Anim *node);
+void anim_init(Anim* node, AnimType type, void* userdata);
+void anim_update(Anim* node, float dt);
+void anim_reset(Anim* node);
 
-void animation_update(Animation *anim, float dt);
-void animation_init(Animation *anim, float duration, AnimValue target, void *userdata);
+void animation_update(Animation* anim, float dt);
+void animation_init(Animation* anim, float duration, AnimValue target, void* userdata);
