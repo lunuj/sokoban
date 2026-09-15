@@ -1,0 +1,114 @@
+#include "core.h"
+#include "map.h"
+#include "records.h"
+
+void mov(Map* map, MovAction* action)
+{
+    int w = get_map_width(map);
+    int h = get_map_height(map);
+
+    switch (action->direct)
+    {
+    case CMD_MOV_UP:
+        action->pos_t = action->pos_f - w * action->step;
+        break;
+    case CMD_MOV_DOWN:
+        action->pos_t = action->pos_f + w * action->step;
+        break;
+    case CMD_MOV_LEFT:
+        action->pos_t = action->pos_f - action->step;
+        break;
+    case CMD_MOV_RIGHT:
+        action->pos_t = action->pos_f + action->step;
+        break;
+    default:
+        break;
+    }
+
+    if (action->pos_t < 0 || action->pos_t >= w * h)
+    {
+        return;
+    }
+
+    if (map_is(map, action->pos_t, MAP_BLOCK))
+    {
+        return;
+    }
+
+    if (map_is(map, action->pos_t, MAP_BOX))
+    {
+        action->pos_f = action->pos_t;
+        mov(map, action);
+        // TODO remove retrun
+        return;
+    }
+
+    if (map_is(map, action->pos_f, MAP_PLAYER))
+    {
+        map_clr(map, action->pos_f, MAP_PLAYER);
+        map_set(map, action->pos_t, MAP_PLAYER);
+    }
+
+    if (map_is(map, action->pos_f, MAP_BOX))
+    {
+        map_clr(map, action->pos_f, MAP_BOX);
+        map_set(map, action->pos_t, MAP_BOX);
+    }
+}
+
+void core_update(Map* map, Records* records, int cmd)
+{
+    MovAction action;
+    action.pos_f = find_player(map);
+    action.step = 1;
+
+    switch (cmd)
+    {
+    case CMD_MOV_UP:
+        action.direct = CMD_MOV_UP;
+        mov(map, &action);
+        records_add(records, &action);
+        break;
+    case CMD_MOV_DOWN:
+        action.direct = CMD_MOV_DOWN;
+        mov(map, &action);
+        records_add(records, &action);
+        break;
+    case CMD_MOV_LEFT:
+        action.direct = CMD_MOV_LEFT;
+        mov(map, &action);
+        records_add(records, &action);
+        break;
+    case CMD_MOV_RIGHT:
+        action.direct = CMD_MOV_RIGHT;
+        mov(map, &action);
+        records_add(records, &action);
+        break;
+    case CMD_UNDO:
+        action = records_undo(records);
+        mov(map, &action);
+        break;
+    case CMD_REDO:
+        action = records_redo(records);
+        mov(map, &action);
+        break;
+    case CMD_BACK:
+        // TODO to be implase
+    default:
+        break;
+    }
+}
+
+bool core_is_win(Map* map)
+{
+    int w = get_map_width(map);
+    int h = get_map_height(map);
+
+    for (int i = 0; i < w * h; i++)
+    {
+        if (map_get(map, i) == MAP_BOX)
+            return false;
+    }
+
+    return true;
+}

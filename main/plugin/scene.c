@@ -17,7 +17,7 @@ int main()
 
     platform_init_window(VERSION_STR, 600, 400, 0);
 
-    box = plugin_init("output/libplug.so");
+    box = plugin_init("output/libplug.so", platform_get_api());
     if (box == NULL)
         goto err;
 

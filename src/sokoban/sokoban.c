@@ -12,7 +12,9 @@
 #include "ui/stage.h"
 #include "ui/title.h"
 
-#include "tool/map.h"
+#include "core/map.h"
+#include "core/records.h"
+#include "tool/xsb.h"
 
 /**
  * @brief 按键映射函数
@@ -70,6 +72,7 @@ struct Sokoban
     int current_stage;
     bool is_win;
     Map map;
+    Records records;
 
     SceneManager* mgr;
     PlatformApi* api;
@@ -108,6 +111,18 @@ int sokoban_get_stage()
 Map* sokoban_get_map(void)
 {
     return &pri->map;
+}
+
+void sokoban_load_map(int stage)
+{
+    char str[64];
+    snprintf(str, sizeof(str), "res/map/map%02d.xsb", stage);
+    load_map_from_xsb(str, &pri->map);
+}
+
+Records* sokoban_get_records(void)
+{
+    return &pri->records;
 }
 
 void sokoban_init(PlatformApi* api)

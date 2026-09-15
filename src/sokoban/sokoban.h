@@ -2,6 +2,7 @@
 #include "platform/platform_plugin.h"
 
 typedef struct Map Map;
+typedef struct Records Records;
 
 /* 场景 ID */
 enum SceneType
@@ -35,3 +36,5 @@ bool sokoban_get_result();
 void sokoban_set_stage(int stage);
 int sokoban_get_stage();
 Map* sokoban_get_map(void);
+void sokoban_load_map(int stage);
+Records* sokoban_get_records(void);

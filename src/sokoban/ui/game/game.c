@@ -7,13 +7,16 @@
 #include <stdlib.h>
 #include "game.h"
 
-#include "../../core.h"
 #include "../../sokoban.h"
+
+#include "../../core/core.h"
+#include "../../core/map.h"
 
 #include "scene/scene_manager.h"
 
 /** @brief 资源路径宏 */
 #define RES(str) "res/img/" #str ".png"
+
 /** @brief 地图块渲染大小（像素） */
 #define MAP_BLOCK_SIZE 40
 
@@ -22,31 +25,10 @@
  */
 struct GamePri
 {
-    Map* map;                   /**< 地图数据 */
+    Map* map; /**< 地图数据 */
+    Records* records;
     Texture2D map_textrue[MAX]; /**< 地图块纹理数组 */
 };
-
-/**
- * @brief 渲染单个地图块
- * @param pri 游戏私有数据指针
- * @param block 地图块类型（位掩码）
- * @param x 屏幕X坐标
- * @param y 屏幕Y坐标
- * @details 根据地图块类型叠加绘制对应的纹理
- */
-static void show_block(struct GamePri* pri, int block, int x, int y)
-{
-    if ((block & MAP_SPACE) == MAP_SPACE)
-        plugin_draw_texture(pri->map_textrue[SPACE], x, y, WHITE);
-    if ((block & MAP_TARGET) == MAP_TARGET)
-        plugin_draw_texture(pri->map_textrue[TARGET], x, y, WHITE);
-    if ((block & MAP_BLOCK) == MAP_BLOCK)
-        plugin_draw_texture(pri->map_textrue[BLOCK], x, y, WHITE);
-    if ((block & MAP_PLAYER) == MAP_PLAYER)
-        plugin_draw_texture(pri->map_textrue[PLAYER], x, y, WHITE);
-    if ((block & MAP_BOX) == MAP_BOX)
-        plugin_draw_texture(pri->map_textrue[BOX], x, y, WHITE);
-}
 
 /**
  * @brief 游戏界面初始化
@@ -62,8 +44,10 @@ static void game_init(Scene* scene)
     struct GamePri* pri = (struct GamePri*)scene->pri;
 
     pri->map = sokoban_get_map();
-    load_map(pri->map, sokoban_get_stage());
-    pri->map->is_recording = true;
+    pri->records = sokoban_get_records();
+
+    sokoban_load_map(sokoban_get_stage());
+
     pri->map_textrue[BOX] = plugin_load_texture(RES(box));
     pri->map_textrue[PLAYER] = plugin_load_texture(RES(player));
     pri->map_textrue[SPACE] = plugin_load_texture(RES(space));
@@ -79,9 +63,7 @@ static void game_init(Scene* scene)
 static void game_reset(Scene* scene)
 {
     struct GamePri* pri = (struct GamePri*)scene->pri;
-
-    load_map(pri->map, sokoban_get_stage());
-    pri->map->is_recording = true;
+    sokoban_load_map(sokoban_get_stage());
 }
 
 /**
@@ -92,16 +74,27 @@ static void game_reset(Scene* scene)
 static void game_render(Scene* scene)
 {
     struct GamePri* pri = (struct GamePri*)scene->pri;
+    Map* map = pri->map;
+    Texture* map_texture = pri->map_textrue;
 
-    int w = pri->map->w;
-    int h = pri->map->h;
+    int w = get_map_width(map);
+    int h = get_map_height(map);
 
     for (int i = 0; i < w * h; i++)
     {
-        int pos_x = (i % w) * MAP_BLOCK_SIZE;
-        int pos_y = (i / w) * MAP_BLOCK_SIZE;
-        int block = pri->map->map[i];
-        show_block(pri, block, pos_x, pos_y);
+        int x = (i % w) * MAP_BLOCK_SIZE;
+        int y = (i / w) * MAP_BLOCK_SIZE;
+
+        if (map_is(map, i, MAP_SPACE))
+            plugin_draw_texture(map_texture[SPACE], x, y, WHITE);
+        if (map_is(map, i, MAP_TARGET))
+            plugin_draw_texture(map_texture[TARGET], x, y, WHITE);
+        if (map_is(map, i, MAP_BLOCK))
+            plugin_draw_texture(map_texture[BLOCK], x, y, WHITE);
+        if (map_is(map, i, MAP_PLAYER))
+            plugin_draw_texture(map_texture[PLAYER], x, y, WHITE);
+        if (map_is(map, i, MAP_BOX))
+            plugin_draw_texture(map_texture[BOX], x, y, WHITE);
     }
 }
 
@@ -159,11 +152,11 @@ static void game_update(Scene* scene, int c)
         scene_manager_set_overlay(scene->mgr, GAME_MENU);
         break;
     default:
-        update(pri->map, key_to_command(c));
+        core_update(pri->map, pri->records, key_to_command(c));
         break;
     }
 
-    if (is_win(pri->map))
+    if (core_is_win(pri->map))
     {
         sokoban_set_result(1);
         scene_manager_set_overlay(scene->mgr, GAME_END);
