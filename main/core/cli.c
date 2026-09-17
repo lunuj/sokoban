@@ -56,7 +56,7 @@ int cli_get()
 
 int main()
 {
-    load_map_from_xsb("res/map/map01.txt", &map);
+    load_map_from_xsb("res/map/map03.xsb", &map);
 
     while (!core_is_win(&map))
     {

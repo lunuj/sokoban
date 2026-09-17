@@ -50,6 +50,16 @@ void platform_end_drawing(void)
     impl_end_drawing();
 }
 
+void platform_begin_mode_2d(Camera2D camera)
+{
+    impl_begin_mode_2d(camera);
+}
+
+void platform_end_mode_2d(void)
+{
+    impl_end_mode_2d();
+}
+
 void platform_clear_background(Color color)
 {
     impl_clear_background(color);
@@ -116,6 +126,8 @@ static PlatformApi platform = {
     .get_key_pressed = platform_get_key_pressed,
     .begin_drawing = platform_begin_drawing,
     .end_drawing = platform_end_drawing,
+    .begin_mode_2d = platform_begin_mode_2d,
+    .end_mode_2d = platform_end_mode_2d,
     .clear_background = platform_clear_background,
     .load_texture = platform_load_texture,
     .unload_texture = platform_unload_texture,

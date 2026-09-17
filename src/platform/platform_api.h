@@ -13,6 +13,8 @@ typedef struct PlatformApi {
     int (*get_key_pressed)(void);
     void (*begin_drawing)(void);
     void (*end_drawing)(void);
+    void (*begin_mode_2d)(Camera2D camera);
+    void (*end_mode_2d)(void);
     void (*clear_background)(Color color);
     Texture (*load_texture)(const char* filename);
     void (*unload_texture)(Texture texture);

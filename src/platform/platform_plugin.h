@@ -24,6 +24,10 @@ void plugin_begin_drawing(void);
 
 void plugin_end_drawing(void);
 
+void plugin_begin_mode_2d(Camera2D camera);
+
+void plugin_end_mode_2d(void);
+
 void plugin_clear_background(Color color);
 
 Texture plugin_load_texture(const char* filename);

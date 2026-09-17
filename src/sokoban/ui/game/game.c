@@ -27,6 +27,7 @@ struct GamePri
 {
     Map* map; /**< 地图数据 */
     Records* records;
+    Camera2D camera;
     Texture2D map_textrue[MAX]; /**< 地图块纹理数组 */
 };
 
@@ -45,6 +46,7 @@ static void game_init(Scene* scene)
 
     pri->map = sokoban_get_map();
     pri->records = sokoban_get_records();
+    pri->camera = (Camera2D){{0, 0}, {0, 0}, 0.0f, 1.0f};
 
     sokoban_load_map(sokoban_get_stage());
 
@@ -80,6 +82,18 @@ static void game_render(Scene* scene)
     int w = get_map_width(map);
     int h = get_map_height(map);
 
+    int pos_p = find_player(map);
+    int pos_px = pos_p % w;
+    int pos_py = pos_p / w;
+
+    pri->camera.offset.x = plugin_get_window_width() / 2;
+    pri->camera.offset.y = plugin_get_window_height() / 2;
+
+    pri->camera.target.x = pos_px * MAP_BLOCK_SIZE;
+    pri->camera.target.y = pos_py * MAP_BLOCK_SIZE;
+
+    plugin_begin_mode_2d(pri->camera);
+
     for (int i = 0; i < w * h; i++)
     {
         int x = (i % w) * MAP_BLOCK_SIZE;
@@ -96,6 +110,8 @@ static void game_render(Scene* scene)
         if (map_is(map, i, MAP_BOX))
             plugin_draw_texture(map_texture[BOX], x, y, WHITE);
     }
+
+    plugin_end_mode_2d();
 }
 
 /**

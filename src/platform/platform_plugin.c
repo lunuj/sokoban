@@ -50,6 +50,16 @@ void plugin_end_drawing(void)
     return platform->end_drawing();
 }
 
+void plugin_begin_mode_2d(Camera2D camera)
+{
+    return platform->begin_mode_2d(camera);
+}
+
+void plugin_end_mode_2d(void)
+{
+    return platform->end_mode_2d();
+}
+
 void plugin_clear_background(Color color)
 {
     return platform->clear_background(color);

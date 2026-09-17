@@ -69,6 +69,16 @@ static inline void impl_end_drawing()
     EndDrawing();
 }
 
+static inline void impl_begin_mode_2d(Camera2D camera)
+{
+    BeginMode2D(camera);
+}
+
+static inline void impl_end_mode_2d()
+{
+    EndMode2D();
+}
+
 static inline void impl_clear_background(Color color)
 {
     ClearBackground(color);

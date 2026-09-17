@@ -15,6 +15,8 @@ int platform_get_window_height(void);
 int platform_get_key_pressed(void);
 void platform_begin_drawing(void);
 void platform_end_drawing(void);
+void platform_begin_mode_2d(Camera2D camera);
+void platform_end_mode_2d(void);
 void platform_clear_background(Color color);
 Texture platform_load_texture(const char* filename);
 void platform_unload_texture(Texture texture);
