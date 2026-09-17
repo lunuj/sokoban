@@ -5,30 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* 应当自动生成或者手动指定version_aduio.h*/
-
-#include "version_auto.h"
-// #define VERSION_MAJOR 0
-// #define VERSION_MINOR 1
-// #define VERSION_PATCH 0
-// #define VERSION_PRERELEASE debug
-// #define VERSION_BUILD lunuj-2026.08.30:23.12.20
-
-#define VERSION_STRINGIFY_HELPER(x) #x
-#define VERSION_STRINGIFY(x) VERSION_STRINGIFY_HELPER(x)
-
-#define VERSION                                                                 \
-    (Version)                                                                   \
-    {                                                                           \
-        .major = VERSION_MAJOR, .minor = VERSION_MINOR, .patch = VERSION_PATCH, \
-        .prerelease = VERSION_STRINGIFY(VERSION_PRERELEASE),                    \
-        .build = VERSION_STRINGIFY(VERSION_BUILD),                              \
-    }
-#define VERSION_STR                                                                    \
-    VERSION_STRINGIFY(                                                                 \
-        VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH - VERSION_PRERELEASE + VERSION_BUILD \
-    )
-
 typedef struct Version
 {
     int major;
@@ -37,6 +13,9 @@ typedef struct Version
     char prerelease[32]; /* 如 "alpha.1" */
     char build[32];      /* 如 "20260830" */
 } Version;
+
+extern const Version version;
+extern const char *const version_str;
 
 static inline const char* version_get_string(const Version* version)
 {
@@ -62,9 +41,9 @@ static inline const char* version_get_string(const Version* version)
 }
 
 /* 获取当前版本结构体 */
-static inline Version version_get_current(void)
+static inline const Version* version_get_current(void)
 {
-    return VERSION;
+    return &version;
 }
 
 /* 将字符串转为小写（辅助函数） */

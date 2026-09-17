@@ -136,7 +136,7 @@ void sokoban_init(PlatformApi* api)
     }
 
     pri->magic = 0xdeadbeef;
-    pri->version = VERSION;
+    pri->version = version;
     pri->api = api;
 
     pri->current_stage = 1;
@@ -182,7 +182,6 @@ bool sokoban_post_reload(void* payload)
 {
     bool ret = false;
     struct Sokoban* ptr = (struct Sokoban*)payload;
-    Version version = VERSION;
 
     if (version_is_compatible(&version, &ptr->version))
     {
@@ -201,7 +200,7 @@ bool sokoban_post_reload(void* payload)
 
 PluginApi PLUGIN_API_NAME = {
     .name = "sokoban",
-    .version = VERSION,
+    .version = &version,
     .init = sokoban_init,
     .exit = sokoban_exit,
     .render = sokoban_render,

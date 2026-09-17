@@ -163,7 +163,7 @@ const char* plugin_get_name(Plugin* plugin)
  */
 const Version* plugin_get_version(Plugin* plugin)
 {
-    return &plugin->api->version;
+    return plugin->api->version;
 }
 
 /**

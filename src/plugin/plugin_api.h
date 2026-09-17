@@ -15,7 +15,7 @@ typedef struct PlatformApi PlatformApi;
 typedef struct PluginApi
 {
     const char* name;      /**< 插件名称 */
-    const Version version; /**< 插件版本信息 */
+    const Version *version; /**< 插件版本信息 */
 
     /**
      * @brief 插件初始化函数

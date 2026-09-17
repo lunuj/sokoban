@@ -2,7 +2,7 @@
 - [X] scene模块优化,改为通用模块,实现resource和context
 - [X] 录像优化
 - [X] 大地图移动
-- [ ] version优化
+- [X] version优化
 - [ ] 计算最大行数
 - [ ] 统计信息与ui
 - [ ] 动画

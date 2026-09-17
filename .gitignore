@@ -2,5 +2,5 @@
 /reference/
 /output/
 /res/
-/src/version_auto.h
+/src/version_auto.c
 /tool/
