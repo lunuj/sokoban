@@ -140,7 +140,9 @@ int save_map_to_xsb(const char* filename, Map* map)
  */
 int load_map_from_xsb(const char* filename, Map* map)
 {
+    char buf[MAP_MAX_SIZE];
     FILE* fp = fopen(filename, "r");
+    size_t ret = 0;
 
     if (fp == NULL)
     {
@@ -148,42 +150,60 @@ int load_map_from_xsb(const char* filename, Map* map)
         return -1;
     }
 
-    int ch = 0;
-    int index = 0;
+    ret = fread(buf, 1, sizeof(buf) - 1, fp);
+    fclose(fp);
+
     int h = 0;
+    int w = 0;
+    int max_width = 0;
 
     map_clean(map);
-    set_map_width(map, MAP_MAX_SIZE);
-    set_map_height(map, 1);
 
-    while (index < MAP_MAX_SIZE)
+    if (buf[ret - 1] != '\n')
+        buf[ret] = '\n';
+
+    for (size_t i = 0; i <= ret; i++)
     {
-        ch = fgetc(fp);
-        if (ch == '\r')
-            continue;
-
-        if (ch == EOF)
+        switch (buf[i])
         {
+        case '\r':
+            break;
+        case '\n':
+            if (max_width < w)
+                max_width = w;
+            w = 0;
             h++;
             break;
+        default:
+            w++;
+            break;
         }
+    }
 
-        if (ch == '\n')
+    set_map_width(map, max_width);
+    set_map_height(map, h);
+
+    int ch = 0;
+    int index = 0;
+
+    for (size_t i = 0; i <= ret; i++)
+    {
+        ch = buf[i];
+        if (ch == '\r' || ch == '\n')
         {
-            h++;
+            if (index % max_width != 0)
+            {
+                int left = max_width - index % max_width;
+
+                for (int j = 0; j < left; j++)
+                    map_set(map, index++, xsb_to_map(SPACE));
+            }
         }
         else
         {
             map_set(map, index++, xsb_to_map(ch));
         }
     }
-
-    assert((index) % h == 0);
-
-    set_map_width(map, index / h);
-    set_map_height(map, h);
-
-    fclose(fp);
 
     return 0;
 }

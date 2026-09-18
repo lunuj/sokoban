@@ -68,7 +68,7 @@ int map_get(Map* map, int pos)
 
 void map_clean(Map* map)
 {
-    memset(map->map, 0, sizeof(map->map));
+    memset(map, 0, sizeof(*map));
 }
 
 void map_clr(Map* map, int pos, int maptype)

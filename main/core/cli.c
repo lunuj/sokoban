@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "sokoban/core/core.h"
 #include "sokoban/core/map.h"
@@ -31,6 +32,7 @@ int cli_get()
     {
     case 'q':
         ret = CMD_BACK;
+        exit(0);
         break;
     case 'e':
         ret = CMD_UNDO;
@@ -54,9 +56,19 @@ int cli_get()
     return ret;
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    load_map_from_xsb("res/map/map03.xsb", &map);
+    if (argc < 2)
+    {
+        load_map_from_xsb("res/map/map01.xsb", &map);
+    }
+    else
+    {
+        if (load_map_from_xsb(argv[1], &map) < 0)
+        {
+            return 1;
+        }
+    }
 
     while (!core_is_win(&map))
     {
