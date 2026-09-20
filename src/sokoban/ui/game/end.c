@@ -35,7 +35,6 @@ struct EndPri
  */
 static void end_init(Scene* scene)
 {
-    scene->status = false;
     scene->ops = &end_ops;
     scene->pri = plugin_calloc(1, sizeof(struct EndPri));
 
@@ -87,7 +86,10 @@ static void end_render(Scene* scene)
 static void end_update(Scene* scene, int c)
 {
     struct EndPri* pri = (struct EndPri*)scene->pri;
-    pri->index = sokoban_get_result();
+    if (sokoban_get_result())
+        pri->index = 0;
+    else
+        pri->index = 1;
 
     switch (c)
     {

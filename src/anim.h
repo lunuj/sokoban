@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include "raylib/raylib.h"
+#include "platform/platform_def.h"
 
 typedef enum AnimType
 {
@@ -93,6 +93,7 @@ struct Anim
 void anim_init(Anim* node, AnimType type, void* userdata);
 void anim_update(Anim* node, float dt);
 void anim_reset(Anim* node);
+bool anim_is_finished(Anim *node);
 
 void animation_update(Animation* anim, float dt);
 void animation_init(Animation* anim, float duration, AnimValue target, void* userdata);

@@ -52,7 +52,7 @@ static void menu_init(Scene* scene)
 {
     scene->status = false;
     scene->ops = &menu_ops;
-    scene->pri = calloc(1, sizeof(struct MenuPri));
+    scene->pri = plugin_calloc(1, sizeof(struct MenuPri));
 
     struct MenuPri* pri = (struct MenuPri*)scene->pri;
     pri->index = 0;

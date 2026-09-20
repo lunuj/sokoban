@@ -5,19 +5,26 @@
 
 void records_add(Records* records, MovAction* action)
 {
-    assert(records->record_count < RECORD_SIZE && "record too big!!");
-    records->action[records->record_count] = *action;
-    records->record_count++;
+    assert(records->undo_count < RECORD_SIZE && "record too big!!");
+    records->undo_stack[records->undo_count++] = *action;
+    records->redo_count = 0;
 }
 
 MovAction records_undo(Records* records)
 {
     MovAction action;
 
-    if (records->record_count > 0)
+    /* TODO */
+    /* mov() 推箱子时action.pos_f 会被递归改写 */
+    /* 撤销时只反转一步方向，但推箱链可能移动了多个箱子 */
+    /* 要么限制"一次只推一个箱子"，要么记录整条链 */
+    /* 是否支持多箱连环 */
+
+    if (records->undo_count > 0)
     {
-        records->record_count--;
-        action = records->action[records->record_count];
+        action = records->undo_stack[--records->undo_count];
+        records->redo_stack[records->redo_count++] = action;
+
         action.pos_f = action.pos_t;
 
         switch (action.direct)
@@ -46,10 +53,10 @@ MovAction records_redo(Records* records)
 {
     MovAction action;
 
-    records->record_count++;
-    if (records->action->direct != CMD_NONE)
+    if (records->redo_count > 0)
     {
-        action = records->action[records->record_count];
+        action = records->redo_stack[--records->redo_count];
+        records->undo_stack[records->undo_count++] = action;
     }
 
     return action;

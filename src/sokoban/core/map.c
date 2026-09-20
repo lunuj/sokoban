@@ -56,7 +56,7 @@ int save_map(const char* filename, Map* map)
 
 void map_set(Map* map, int pos, int maptype)
 {
-    assert(pos < map->w * map->h);
+    assert(pos <= map->w * map->h);
     map->map[pos] |= maptype;
 }
 

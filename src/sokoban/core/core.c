@@ -2,7 +2,7 @@
 #include "map.h"
 #include "records.h"
 
-void mov(Map* map, MovAction* action)
+bool mov(Map* map, MovAction* action)
 {
     int w = get_map_width(map);
     int h = get_map_height(map);
@@ -27,20 +27,23 @@ void mov(Map* map, MovAction* action)
 
     if (action->pos_t < 0 || action->pos_t >= w * h)
     {
-        return;
+        return false;
     }
 
     if (map_is(map, action->pos_t, MAP_BLOCK))
     {
-        return;
+        return false;
     }
 
     if (map_is(map, action->pos_t, MAP_BOX))
     {
+        if (map_is(map, action->pos_f, MAP_BOX))
+        {
+            return false;
+        }
+        int pos_f = action->pos_f;
         action->pos_f = action->pos_t;
-        mov(map, action);
-        // TODO remove retrun
-        return;
+        return mov(map, action);
     }
 
     if (map_is(map, action->pos_f, MAP_PLAYER))
@@ -54,6 +57,8 @@ void mov(Map* map, MovAction* action)
         map_clr(map, action->pos_f, MAP_BOX);
         map_set(map, action->pos_t, MAP_BOX);
     }
+
+    return true;
 }
 
 void core_update(Map* map, Records* records, int cmd)
@@ -66,23 +71,23 @@ void core_update(Map* map, Records* records, int cmd)
     {
     case CMD_MOV_UP:
         action.direct = CMD_MOV_UP;
-        mov(map, &action);
-        records_add(records, &action);
+        if (mov(map, &action))
+            records_add(records, &action);
         break;
     case CMD_MOV_DOWN:
         action.direct = CMD_MOV_DOWN;
-        mov(map, &action);
-        records_add(records, &action);
+        if (mov(map, &action))
+            records_add(records, &action);
         break;
     case CMD_MOV_LEFT:
         action.direct = CMD_MOV_LEFT;
-        mov(map, &action);
-        records_add(records, &action);
+        if (mov(map, &action))
+            records_add(records, &action);
         break;
     case CMD_MOV_RIGHT:
         action.direct = CMD_MOV_RIGHT;
-        mov(map, &action);
-        records_add(records, &action);
+        if (mov(map, &action))
+            records_add(records, &action);
         break;
     case CMD_UNDO:
         action = records_undo(records);

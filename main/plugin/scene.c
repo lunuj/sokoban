@@ -15,7 +15,7 @@ int main()
     platform_set_log_level(LOG_INFO);
     platform_log(LOG_INFO, "game start!!");
 
-    platform_init_window(VERSION_STR, 600, 400, 0);
+    platform_init_window(version_str, 600, 400, 0);
 
     box = plugin_init("output/libplug.so", platform_get_api());
     if (box == NULL)

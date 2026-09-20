@@ -18,6 +18,7 @@ static inline bool impl_init_window(const char* title, int width, int height, in
     SetConfigFlags(FLAG_WINDOW_TRANSPARENT | flags);
     InitWindow(width, height, title);
     SetExitKey(KEY_NULL);
+    SetTargetFPS(60);
     return true;
 }
 

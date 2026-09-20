@@ -57,10 +57,10 @@ static void stage_update(Scene* scene, int key)
     switch (key)
     {
     case OPTION_MOV_UP:
-        index = (index - 1);
+        index = (index - 10);
         break;
     case OPTION_MOV_DOWN:
-        index = (index + 1);
+        index = (index + 10);
         break;
     case OPTION_MOV_LEFT:
         index = (index - 1);

@@ -78,7 +78,10 @@ bool load_plugin(const char* filename, Plugin* plugin)
 
     plugin->handle = dlopen(COPY_PLUIN_NAME, RTLD_NOW);
     if (!plugin->handle)
+    {
+        dlclose(plugin->handle);
         return false;
+    }
 
     plugin->api = dlsym(plugin->handle, "plugin_api");
     if (!plugin->api)

@@ -37,6 +37,9 @@ int cli_get()
     case 'e':
         ret = CMD_UNDO;
         break;
+    case 'f':
+        ret = CMD_REDO;
+        break;
     case 'w':
         ret = CMD_MOV_UP;
         break;

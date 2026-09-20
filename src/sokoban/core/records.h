@@ -14,10 +14,12 @@ typedef struct MovAction
 
 typedef struct Records
 {
-    int record_count;
-    MovAction action[RECORD_SIZE];
+    int undo_count;
+    int redo_count;
+    MovAction undo_stack[RECORD_SIZE];
+    MovAction redo_stack[RECORD_SIZE];
 } Records;
 
-void records_add(Records *records, MovAction *action);
-MovAction records_undo(Records *records);
+void records_add(Records* records, MovAction* action);
+MovAction records_undo(Records* records);
 MovAction records_redo(Records* records);

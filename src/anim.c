@@ -32,9 +32,10 @@ static void animation_interpolator_position(AnimValue* target, float p, void* us
 {
     assert(target->type == ANIMATION_POSITION);
 
-    *(Vector2*)userdata = (Vector2
-    ){Lerp(target->from.position.x, target->to.position.x, p),
-      Lerp(target->from.position.y, target->to.position.y, p)};
+    *(Vector2*)userdata = (Vector2){
+        Lerp(target->from.position.x, target->to.position.x, p),
+        Lerp(target->from.position.y, target->to.position.y, p),
+    };
 }
 
 static void animation_interpolator_color(AnimValue* target, float p, void* userdata)
@@ -163,13 +164,13 @@ static void anim_sequence_update(Anim* node, float dt)
     Sequence* s = (Sequence*)node->userdata;
     for (int i = 0; i < s->count; i++)
     {
-        Anim a = s->children[i];
-        assert(a.ops);
-        assert(a.ops->finished);
+        Anim* a = s->children + i;
+        assert(a->ops);
+        assert(a->ops->finished);
 
-        if (!a.ops->finished(&a))
+        if (!a->ops->finished(a))
         {
-            a.ops->update(&a, dt);
+            a->ops->update(a, dt);
             break;
         }
     }
@@ -188,11 +189,11 @@ static bool anim_sequence_isfinished(Anim* node)
     Sequence* s = (Sequence*)node->userdata;
     for (int i = 0; i < s->count; i++)
     {
-        Anim a = s->children[i];
-        assert(a.ops);
-        assert(a.ops->finished);
+        Anim* a = s->children + i;
+        assert(a->ops);
+        assert(a->ops->finished);
 
-        if (!a.ops->finished(&a))
+        if (!a->ops->finished(a))
         {
             return false;
         }
@@ -226,13 +227,13 @@ static inline void anim_parallel_update(Anim* node, float dt)
     Parallel* p = (Parallel*)node->userdata;
     for (int i = 0; i < p->count; i++)
     {
-        Anim a = p->children[i];
-        assert(a.ops);
-        assert(a.ops->finished);
+        Anim* a = p->children + i;
+        assert(a->ops);
+        assert(a->ops->finished);
 
-        if (!a.ops->finished(&a))
+        if (!a->ops->finished(a))
         {
-            a.ops->update(&a, dt);
+            a->ops->update(a, dt);
         }
     }
 
@@ -250,11 +251,11 @@ static bool anim_parallel_isfinished(Anim* node)
     Parallel* p = (Parallel*)node->userdata;
     for (int i = 0; i < p->count; i++)
     {
-        Anim a = p->children[i];
-        assert(a.ops);
-        assert(a.ops->finished);
+        Anim* a = p->children + i;
+        assert(a->ops);
+        assert(a->ops->finished);
 
-        if (!a.ops->finished(&a))
+        if (!a->ops->finished(a))
         {
             return false;
         }
@@ -292,6 +293,14 @@ void anim_reset(Anim* node)
     assert(node->ops);
     assert(node->ops->reset);
     node->ops->reset(node);
+}
+
+bool anim_is_finished(Anim* node)
+{
+    assert(node);
+    assert(node->ops);
+    assert(node->ops->finished);
+    return node->ops->finished(node);
 }
 
 #pragma endregion

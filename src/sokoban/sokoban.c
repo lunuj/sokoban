@@ -180,22 +180,20 @@ void* sokoban_pre_reload()
 
 bool sokoban_post_reload(void* payload)
 {
-    bool ret = false;
     struct Sokoban* ptr = (struct Sokoban*)payload;
 
-    if (version_is_compatible(&version, &ptr->version))
-    {
-        pri = ptr;
-        plugin_set_api(pri->api);
-        for (int i = 0; i < SCENE_MAX; i++)
-        {
-            scene_manager_reload(pri->mgr, i, scene_ops[i]);
-        }
-        ret = true;
-        plugin_log(0, "reload ok\n");
-    }
+    if (!version_is_compatible(&version, &ptr->version))
+        return false;
 
-    return ret;
+    pri = ptr;
+    plugin_set_api(pri->api);
+    for (int i = 0; i < SCENE_MAX; i++)
+    {
+        scene_manager_reload(pri->mgr, i, scene_ops[i]);
+    }
+    plugin_log(0, "reload ok\n");
+
+    return true;
 }
 
 PluginApi PLUGIN_API_NAME = {

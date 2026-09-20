@@ -40,7 +40,7 @@ static void game_init(Scene* scene)
 {
     scene->status = false;
     scene->ops = &game_ops;
-    scene->pri = calloc(1, sizeof(struct GamePri));
+    scene->pri = plugin_calloc(1, sizeof(struct GamePri));
 
     struct GamePri* pri = (struct GamePri*)scene->pri;
 
@@ -192,7 +192,7 @@ static void game_exit(Scene* scene)
         plugin_unload_texture(pri->map_textrue[i]);
     }
 
-    free(pri);
+    plugin_free(pri);
 }
 
 /** @brief 游戏界面操作函数集 */
