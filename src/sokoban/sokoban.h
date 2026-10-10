@@ -27,6 +27,7 @@ enum Option
     OPTION_MOV_LEFT,
     OPTION_MOV_RIGHT,
     OPTION_UNDO,
+    OPTION_REDO,
     OPTION_RELOAD,
     OPTION_MAX,
 };

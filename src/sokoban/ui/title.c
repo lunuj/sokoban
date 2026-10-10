@@ -10,6 +10,8 @@
 
 #include "../sokoban.h"
 
+#include "anim.h"
+
 /** @brief 资源路径宏 */
 #define RES(str) "res/ui/gui/" #str
 /** @brief 菜单选项数量 */
@@ -43,9 +45,11 @@ struct TitlePri
     Texture bg;     /**< 背景纹理 */
     int index;      /**< 当前选中的菜单项索引 */
     Texture select; /**< 选择指示器纹理 */
-};
 
-#include <stdio.h>
+    Anim anim;
+    Animation animation;
+    Vector2 current_pos; // 插值后的位置
+};
 
 /**
  * @brief 标题界面初始化
@@ -61,6 +65,15 @@ static void title_init(Scene* scene)
     pri->bg = plugin_load_texture(RES(title.png));
     pri->index = 0;
     pri->select = plugin_load_texture(RES(select.png));
+
+    AnimValue v = {
+        .type = ANIMATION_POSITION,
+        .from.position = pos[0],
+        .to.position = pos[0],
+    };
+    animation_init(&pri->animation, 0.25f, v, &pri->current_pos);
+    anim_init(&pri->anim, ANIM_ANIMATION, &pri->animation);
+    pri->anim.loop = false;
 }
 
 /**
@@ -97,7 +110,7 @@ static void title_render(Scene* scene)
     plugin_draw_texture_pro(
         pri->select,
         (Rectangle){0, 0, pri->select.width, pri->select.height},
-        (Rectangle){pos[pri->index].x, pos[pri->index].y, pri->select.width, pri->select.height},
+        (Rectangle){pri->current_pos.x, pri->current_pos.y, pri->select.width, pri->select.height},
         (Vector2){0, 0},
         0,
         WHITE
@@ -128,16 +141,25 @@ static void title_update(Scene* scene, int c)
 {
     struct TitlePri* pri = (struct TitlePri*)scene->pri;
 
+    anim_update(&pri->anim, 1.0 / 60);
+
     int* index = &pri->index;
+
     switch (c)
     {
     case OPTION_MOV_UP:
     case OPTION_MOV_LEFT:
         *index = (*index + SELECT_NUM - 1) % SELECT_NUM;
+        pri->animation.target.from.position = pri->current_pos;
+        pri->animation.target.to.position = pos[*index];
+        anim_reset(&pri->anim);
         break;
     case OPTION_MOV_DOWN:
     case OPTION_MOV_RIGHT:
         *index = (*index + 1) % SELECT_NUM;
+        pri->animation.target.from.position = pri->current_pos;
+        pri->animation.target.to.position = pos[*index];
+        anim_reset(&pri->anim);
         break;
     case OPTION_ENTER:
         switch (*index)

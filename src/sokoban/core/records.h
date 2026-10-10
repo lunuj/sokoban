@@ -23,3 +23,4 @@ typedef struct Records
 void records_add(Records* records, MovAction* action);
 MovAction records_undo(Records* records);
 MovAction records_redo(Records* records);
+int records_get_count(Records *records);

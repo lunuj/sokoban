@@ -52,6 +52,9 @@ int sokoban_key_map(int c)
     case KEY_E:
         ret = OPTION_UNDO;
         break;
+    case KEY_F:
+        ret = OPTION_REDO;
+        break;
     case KEY_R:
         ret = OPTION_RELOAD;
     default:
@@ -116,7 +119,7 @@ Map* sokoban_get_map(void)
 void sokoban_load_map(int stage)
 {
     char str[64];
-    snprintf(str, sizeof(str), "res/map/map%02d.xsb", stage);
+    snprintf(str, sizeof(str), "res/screens/screen.%d", stage);
     load_map_from_xsb(str, &pri->map);
 }
 

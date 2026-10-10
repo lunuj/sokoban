@@ -22,16 +22,25 @@ bool mov(Map* map, MovAction* action)
         action->pos_t = action->pos_f + action->step;
         break;
     default:
-        break;
+        return false;
+    }
+
+    if (((action->pos_f + 1) % map->w == 0 && (action->pos_t + 1) % map->w == 1) ||
+        ((action->pos_f + 1) % map->w == 1 && (action->pos_t + 1) % map->w == 0))
+    {
+        action->direct = CMD_NONE;
+        return false;
     }
 
     if (action->pos_t < 0 || action->pos_t >= w * h)
     {
+        action->direct = CMD_NONE;
         return false;
     }
 
     if (map_is(map, action->pos_t, MAP_BLOCK))
     {
+        action->direct = CMD_NONE;
         return false;
     }
 
@@ -39,9 +48,9 @@ bool mov(Map* map, MovAction* action)
     {
         if (map_is(map, action->pos_f, MAP_BOX))
         {
+            action->direct = CMD_NONE;
             return false;
         }
-        int pos_f = action->pos_f;
         action->pos_f = action->pos_t;
         return mov(map, action);
     }
@@ -61,10 +70,11 @@ bool mov(Map* map, MovAction* action)
     return true;
 }
 
-void core_update(Map* map, Records* records, int cmd)
+MovAction core_update(Map* map, Records* records, int cmd)
 {
     MovAction action;
     action.pos_f = find_player(map);
+    action.direct = CMD_NONE;
     action.step = 1;
 
     switch (cmd)
@@ -102,6 +112,7 @@ void core_update(Map* map, Records* records, int cmd)
     default:
         break;
     }
+    return action;
 }
 
 bool core_is_win(Map* map)

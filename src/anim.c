@@ -24,7 +24,7 @@ static Curve animation_get_curve(AnimationType type)
 
 #pragma region "Interpolator"
 
-#define Lerp(from, to, w) ((from) * (1.0f - (w)) + (to) * (w))
+#define Lerp(from, to, w) ((from) - (from) * (w) + (to) * (w))
 
 // #define Lerp(from, to, w) ((w))
 

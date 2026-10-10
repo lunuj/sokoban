@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+#include "records.h"
 
 typedef struct Map Map;
 typedef struct Records Records;
@@ -27,5 +28,5 @@ typedef enum CoreOps
     CMD_BACK,
 } CoreOps;
 
-void core_update(Map* map, Records* records, int cmd);
+MovAction core_update(Map* map, Records* records, int cmd);
 bool core_is_win(Map* map);

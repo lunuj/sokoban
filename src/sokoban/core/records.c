@@ -19,12 +19,12 @@ MovAction records_undo(Records* records)
     /* 撤销时只反转一步方向，但推箱链可能移动了多个箱子 */
     /* 要么限制"一次只推一个箱子"，要么记录整条链 */
     /* 是否支持多箱连环 */
+    action.direct = CMD_NONE;
 
     if (records->undo_count > 0)
     {
         action = records->undo_stack[--records->undo_count];
         records->redo_stack[records->redo_count++] = action;
-
         action.pos_f = action.pos_t;
 
         switch (action.direct)
@@ -60,4 +60,9 @@ MovAction records_redo(Records* records)
     }
 
     return action;
+}
+
+int records_get_count(Records* records)
+{
+    return records->undo_count;
 }
