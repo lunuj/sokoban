@@ -128,6 +128,35 @@ Records* sokoban_get_records(void)
     return &pri->records;
 }
 
+bool sokoban_load_archive(const char* filename)
+{
+    FILE* fp = fopen(filename, "r");
+    if (fp == NULL)
+    {
+        memset(pri, 0, sizeof(*pri));
+        printf("open file %s error!\n", filename);
+        return false;
+    }
+
+    fread(pri, offsetof(struct Sokoban, map), 1, fp);
+    fclose(fp);
+    return true;
+}
+
+bool sokoban_save_archive(const char* filename)
+{
+    FILE* fp = fopen(filename, "w");
+    if (fp == NULL)
+    {
+        printf("open file %s error!\n", filename);
+        return false;
+    }
+
+    fwrite(pri, offsetof(struct Sokoban, map), 1, fp);
+    fclose(fp);
+    return true;
+}
+
 void sokoban_init(PlatformApi* api)
 {
     plugin_set_api(api);
@@ -138,11 +167,14 @@ void sokoban_init(PlatformApi* api)
         exit(0);
     }
 
-    pri->magic = 0xdeadbeef;
-    pri->version = version;
-    pri->api = api;
+    if (!sokoban_load_archive(ARCHIVE_FILENAME))
+    {
+        pri->magic = 0xdeadbeef;
+        pri->version = version;
+        pri->api = api;
 
-    pri->current_stage = 1;
+        pri->current_stage = 1;
+    }
 
     pri->mgr = scene_manager_create(SCENE_MAX);
     for (int i = 0; i < SCENE_MAX; i++)

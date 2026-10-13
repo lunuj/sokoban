@@ -1,6 +1,7 @@
 #pragma once
 #include "platform/platform_plugin.h"
 
+#define ARCHIVE_FILENAME "sokoban.archive"
 typedef struct Map Map;
 typedef struct Records Records;
 
@@ -39,3 +40,5 @@ int sokoban_get_stage();
 Map* sokoban_get_map(void);
 void sokoban_load_map(int stage);
 Records* sokoban_get_records(void);
+bool sokoban_load_archive(const char* filename);
+bool sokoban_save_archive(const char* filename);

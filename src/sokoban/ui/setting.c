@@ -5,13 +5,12 @@
 #include "../sokoban.h"
 #include "scene/scene_manager.h"
 
-#define MAX_NUM 4
+#define MAX_NUM 3
 
 char* setting_text[MAX_NUM] = {
-    "render setting", /**< 胜利文本 */
-    "audio setting",  /**< 失败文本 */
-    "game setting",   /**< 失败文本 */
-    "back to title",  /**< 失败文本 */
+    "save archive",
+    "load archive",
+    "back to title",
 };
 
 struct SettingPri
@@ -22,7 +21,6 @@ struct SettingPri
 
 static void setting_init(Scene* scene)
 {
-    scene->status = false;
     scene->ops = &setting_ops;
     scene->pri = plugin_calloc(1, sizeof(struct SettingPri));
 
@@ -69,11 +67,21 @@ static void setting_update(Scene* scene, int key)
         index = (index + 1) % MAX_NUM;
         break;
     case OPTION_ENTER:
-        scene->status = true;
+        if (index == 0)
+        {
+            sokoban_save_archive(ARCHIVE_FILENAME);
+        }
+        else if (index == 1)
+        {
+            sokoban_load_archive(ARCHIVE_FILENAME);
+        }
+        else
+        {
+            scene_manager_replace(scene->mgr, TITLE);
+        }
         break;
     case OPTION_BACK:
         scene_manager_replace(scene->mgr, TITLE);
-        scene->status = true;
         break;
     default:
         break;
