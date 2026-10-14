@@ -5,6 +5,7 @@
 #include "scene/scene_manager.h"
 #include "version.h"
 
+#include "ui/editor/editor.h"
 #include "ui/game/end.h"
 #include "ui/game/game.h"
 #include "ui/game/menu.h"
@@ -57,6 +58,28 @@ int sokoban_key_map(int c)
         break;
     case KEY_R:
         ret = OPTION_RELOAD;
+        break;
+    case KEY_ONE:
+        ret = OPTION_BRUSH_1;
+        break;
+    case KEY_TWO:
+        ret = OPTION_BRUSH_2;
+        break;
+    case KEY_THREE:
+        ret = OPTION_BRUSH_3;
+        break;
+    case KEY_FOUR:
+        ret = OPTION_BRUSH_4;
+        break;
+    case KEY_FIVE:
+        ret = OPTION_BRUSH_5;
+        break;
+    case KEY_SIX:
+        ret = OPTION_BRUSH_6;
+        break;
+    case KEY_SEVEN:
+        ret = OPTION_BRUSH_7;
+        break;
     default:
         break;
     }
@@ -86,6 +109,7 @@ static const SceneOps* scene_ops[SCENE_MAX] = {
     &title_ops,
     &stage_ops,
     &setting_ops,
+    &editor_ops,
     &game_ops,
     &menu_ops,
     &end_ops,

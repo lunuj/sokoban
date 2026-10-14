@@ -13,6 +13,7 @@
 #define MAP_PLAYER (1 << 1)
 #define MAP_TARGET (1 << 2)
 #define MAP_BOX (1 << 3)
+#define MAP_ALL (0xFF)
 
 typedef struct Map
 {
@@ -37,15 +38,15 @@ int load_map(const char* filename, Map* map);
  */
 int save_map(const char* filename, Map* map);
 
-int map_get(Map *map, int pos);
-void map_clean(Map *map);
-void map_set(Map *map, int pos, int maptype);
-void map_clr(Map *map, int pos, int maptype);
-bool map_is(Map *map, int pos, int maptype);
+int map_get(Map* map, int pos);
+void map_clean(Map* map);
+void map_set(Map* map, int pos, int maptype);
+void map_clr(Map* map, int pos, int maptype);
+bool map_is(Map* map, int pos, int maptype);
 
-int get_map_width(Map *map);
-void set_map_width(Map *map, int w);
-int get_map_height(Map *map);
-void set_map_height(Map *map, int h);
+int get_map_width(Map* map);
+void set_map_width(Map* map, int w);
+int get_map_height(Map* map);
+void set_map_height(Map* map, int h);
 
 int find_player(Map* map);

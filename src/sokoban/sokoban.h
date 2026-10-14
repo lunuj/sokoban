@@ -11,6 +11,7 @@ enum SceneType
     TITLE = 0,
     STAGE,
     SETTING,
+    EDITOR,
     GAME,
     GAME_MENU,
     GAME_END,
@@ -30,6 +31,13 @@ enum Option
     OPTION_UNDO,
     OPTION_REDO,
     OPTION_RELOAD,
+    OPTION_BRUSH_1,
+    OPTION_BRUSH_2,
+    OPTION_BRUSH_3,
+    OPTION_BRUSH_4,
+    OPTION_BRUSH_5,
+    OPTION_BRUSH_6,
+    OPTION_BRUSH_7,
     OPTION_MAX,
 };
 

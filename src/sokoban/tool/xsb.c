@@ -128,6 +128,8 @@ int save_map_to_xsb(const char* filename, Map* map)
         fputc('\n', fp);
     }
 
+    fclose(fp);
+
     return 0;
 }
 

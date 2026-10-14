@@ -70,7 +70,6 @@ static void game_init(Scene* scene)
     pri->records = sokoban_get_records();
 
     sokoban_load_map(sokoban_get_stage());
-
     pri->map_textrue[BOX] = plugin_load_texture(RES(box));
     pri->map_textrue[PLAYER] = plugin_load_texture(RES(player));
     pri->map_textrue[SPACE] = plugin_load_texture(RES(space));
@@ -154,6 +153,7 @@ static void game_render(Scene* scene)
             plugin_draw_texture(map_texture[BOX], pri->current_pos.x, pri->current_pos.y, WHITE);
     }
 
+    // plugin_draw_rectangle(desired.x - 160, desired.y - 120, 360, 280, (Color){255, 109, 194, 125});
     plugin_end_mode_2d();
     char str[32];
     snprintf(str, sizeof(str), "step: %d", records_get_count(pri->records));

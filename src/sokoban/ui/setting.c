@@ -5,11 +5,12 @@
 #include "../sokoban.h"
 #include "scene/scene_manager.h"
 
-#define MAX_NUM 3
+#define MAX_NUM 4
 
 char* setting_text[MAX_NUM] = {
     "save archive",
     "load archive",
+    "into eidtor",
     "back to title",
 };
 
@@ -74,6 +75,10 @@ static void setting_update(Scene* scene, int key)
         else if (index == 1)
         {
             sokoban_load_archive(ARCHIVE_FILENAME);
+        }
+        else if(index == 2)
+        {
+            scene_manager_replace(scene->mgr, EDITOR);
         }
         else
         {
