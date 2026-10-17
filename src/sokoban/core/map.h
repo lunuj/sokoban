@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #define MAP_MAX_SIZE 1024
 
 #define MAP_SPACE (0)

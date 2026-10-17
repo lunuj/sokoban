@@ -143,7 +143,7 @@ LIBS 			:= $(foreach f,$(notdir $(LIB_FILES)),-l$(basename $(patsubst lib%,%,$(f
 # 编译标志
 CFLAGS          := -Wall -Wextra -g -fpic -Wno-unused-variable -Wno-missing-braces
 INCLUDE         := -I$(INCLUDE_DIR) -I$(SOURCE_DIR) $(MODULES_INC)
-LIB             := -L$(LIB_DIR)/$(OS) $(LIBS_DIR) $(MODULES_OBJ) $(MODULES_FILE) -Wl,-rpath=$(LIB_DIR)/$(OS) $(MODULES_PATH)
+LIB             := -L$(LIB_DIR)/$(OS) $(LIBS_DIR) $(MODULES_OBJ) $(MODULES_FILE) -Wl,-rpath,$(LIB_DIR)/$(OS) $(MODULES_PATH)
 
 # 创建目录的规则
 define MAKE_DIR

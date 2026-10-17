@@ -8,7 +8,11 @@ os="$(make -s print-OS)"
 target=$(basename "$PWD")
 make_flags="TARGET_NAME=\"$target\""
 
-export PATH=$(find $lib/$os/ -maxdepth 1 -type d | tr '\n' ':'):$PATH
+if [ "$os" = "Mac" ] || [ "$os" = "Mac" ]; then
+    export DYLD_LIBRARY_PATH=$(find $lib/$os/ -maxdepth 1 -type d | tr '\n' ':')
+else
+    export PATH=$(find $lib/$os/ -maxdepth 1 -type d | tr '\n' ':'):$PATH
+fi
 
 make_all() {
     for dir in $modules/*; do
