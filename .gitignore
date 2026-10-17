@@ -1,6 +1,4 @@
 /.vscode/
-/reference/
 /output/
-/res/
 /src/version_auto.c
 /tool/

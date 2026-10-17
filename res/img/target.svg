@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <!-- 目标地点（星星/菱形标志） -->
+  <!-- 红色菱形 -->
+  <polygon points="1,1 19,1 19,19 1,19" fill="#ff4444" opacity="0.6"/>
+</svg>
